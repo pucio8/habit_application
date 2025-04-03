@@ -1,0 +1,20 @@
+1. Create .venv (check terminal)
+2. Install Django
+3. django-admin.exe startproject habits_application . # manage.py has created
+4. test server #python manage.py runserver
+5. create habit #python manage.py startapp habit
+6. create class habit(Models.model)
+7. admin (register model) admin.site.register(Habit)
+8. settings - add my model in INSTALLED_APPS
+9. settings - change language, time, static_rot, allowed_hosts
+10.
+├── habit
+     ├── static
+              └── css
+     ├── templates
+              └── habit
+python manage.py makemigrations habit
+python manage.py migrate
+11. Create superuser
+
+== Add code in GitHube ==
