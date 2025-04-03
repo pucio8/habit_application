@@ -20,4 +20,5 @@ python manage.py migrate
 == Add code in GitHube ==
 - git branch -m master main (chane main branch name)
 git remote add origin https://github.com/pucio8/habits_application.git
+git pull --rebase origin main
 
