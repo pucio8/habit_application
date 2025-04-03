@@ -18,7 +18,11 @@ python manage.py migrate
 11. Create superuser
 
 == Add code in GitHube ==
-- git branch -m master main (chane main branch name)
-git remote add origin https://github.com/pucio8/habits_application.git
-git pull --rebase origin main
+git branch -m master main (chane main branch name) #change master -> main
+git remote add origin https://github.com/pucio8/habits_application.git #add origin (origin = url to repo)
+git pull --rebase origin main #pull repo with github (gitignore, readme)
+git push --set-upstream origin main #push and set upstream (set default branch)
+#testing branch
+git branch
+git checkout -b test-branch
 
