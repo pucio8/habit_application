@@ -25,6 +25,9 @@ git push --set-upstream origin main #push and set upstream (set default branch)
 #testing branch
 git branch
 git checkout -b test-branch
+# ignore desc.txt
+git rm --cached description.txt
+git commit -m "Ignore description.txt"
 ==========================
 
 12.
