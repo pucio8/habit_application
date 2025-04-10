@@ -1,0 +1,21 @@
+{% extends 'habit/base.html' %}
+
+{% block header_buttons %}
+<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center text-decoration-none">
+    <i class="bi bi-arrow-left" style="font-size: 1.5rem;"></i>
+    <span class="small">Back</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 ">
+    <h1>🚨 Danger Zone – Delete Habit</h1>
+    <p>Are you sure you want to delete the habit: <strong>{{ habit.name }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger me-3">Delete Habit</button>
+        <a href="{% url 'habit_detail' pk=habit.pk %}" class="text-dark text-decoration-none">Cancel and keep habit</a>
+    </form>
+</div>
+{% endblock %}

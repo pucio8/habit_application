@@ -1,0 +1,55 @@
+{% extends 'habit/base.html' %}
+
+{% block header_buttons %}
+<a href="{% url 'habit_add' %}" class="text-white d-flex flex-column align-items-center
+            text-decoration-none">
+    <i class="bi bi-plus-circle" style="font-size: 1.5rem;"></i>
+    <span class="small">Add</span>
+</a>
+{% endblock %}
+
+{% block content %}
+
+{% if habits %}
+
+<div class="container mt-4">
+    <h1 class="fs-3 mb-4">Habit List</h1>
+    <div class="row">
+        <div class="row col-12 mb-3">
+            <div class="col-8"></div>
+            <div class="col-2 table_heading text-center">In a row</div>
+            <div class="col-2 table_heading text-center">Score</div>
+        </div>
+        {% for habit in habits %}
+        <div class="col-12 mb-3">
+            <a href="{% url 'habit_detail' pk=habit.pk %}" class="text-dark text-decoration-none habit-link">
+                <div class="d-flex align-items-center justify-content-between p-3 border-bottom rounded ">
+                    <div class="col-1 rounded"
+                         style="width: 20px; height: 50px; background-color: {{ habit.color }};"></div>
+
+                    <div class="col-7  flex-grow-1 ms-3 ">{{ habit.name }}</div>
+
+                    <div class="col-2 text-center">{{ habit.current_streak }}</div>
+
+                    <div class="col-2 text-center">{{ habit.score }}%</div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+
+<div class="d-flex justify-content-center align-items-center flex-column text-center" style="height: 70vh;">
+    <h1 class="mb-3">Add your first habit!</h1>
+    <a href="{% url 'habit_add' %}" class="text-dark text-decoration-none">
+        <i class="bi bi-plus-circle-dotted" style="font-size: 4rem;"></i>
+    </a>
+</div>
+
+
+
+{% endif %}
+
+{% endblock %}

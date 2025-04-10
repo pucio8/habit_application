@@ -1,0 +1,74 @@
+{% extends 'habit/base.html' %}
+
+{% block header_buttons %}
+<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center
+            text-decoration-none">
+    <i class="bi bi-arrow-left" style="font-size: 1.5rem;"></i>
+    <span class="small">Back</span>
+</a>
+<a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white d-flex flex-column align-items-center
+            text-decoration-none">
+    <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
+    <span class="small">Edit</span>
+</a>
+
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <h1 class="text-center fs-3 py-4 text-white" style="background-color: {{ habit.color }};">
+        {{ habit.name }}
+    </h1>
+</div>
+
+{% include 'habit/habit_calendar.html' %}
+
+<div class="habit_info">
+    <h3 class="text-center fs-3 mt-5 py-2">Habit Info</h3>
+</div>
+
+<div class="container mt-3">
+    <p><strong>Score:</strong> {{ habit.score }}%</p>
+    <p><strong>Day in a row:</strong> {{ habit.current_streak }}%</p>
+    <p><strong>Created:</strong> {{ habit.created_at|date:"Y-m-d" }}</p>
+    <p><strong>Description:</strong> {{ habit.description }}</p>
+
+</div>
+
+<div class="habit_info">
+    <h3 class="text-center fs-3 mt-5 py-2">Danger Zone</h3>
+</div>
+<div class="container mt-3 pb-5">
+    <button class="btn btn-danger">
+        <a href="{% url 'habit_delete' pk=habit.pk %}" class="text-white text-decoration-none">Delete Habit</a>
+    </button>
+</div>
+
+
+<script>
+    const form = document.getElementById('calendar-form');
+    const buttons = document.querySelectorAll('.day-button');
+    const inputDay = document.getElementById('selected-day');
+    const inputAction = document.getElementById('selected-action');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const day = button.getAttribute('data-day');
+        let currentStatus = button.getAttribute('data-status');
+
+        // Rotacja statusów
+        let nextStatus;
+        if (currentStatus === 'none') nextStatus = 'done';
+        else if (currentStatus === 'done') nextStatus = 'not_done';
+        else nextStatus = 'none';
+
+        // Wysyłanie danych
+        inputDay.value = day;
+        inputAction.value = nextStatus;
+
+        form.submit();
+      });
+    });
+</script>
+{% endblock %}

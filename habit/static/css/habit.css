@@ -1,0 +1,89 @@
+/* Global styles */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header */
+a > h1.mb-0 {
+    font-family: 'Rock Salt', cursive;
+    font-size: 2rem;
+}
+.table_heading {
+    font-size: 1.1rem;
+}
+
+/* Smaller font size in the header on mobile devices */
+@media (max-width: 768px) {
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 100;
+    }
+
+    .content-container {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    header > div > div > h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Styles for larger screens */
+@media (min-width: 769px) {
+    footer {
+        position: static;
+    }
+
+    header {
+        position: static;
+        box-shadow: none;
+    }
+
+    .content-container {
+        overflow-y: auto;
+    }
+}
+
+/* Hover effect for links - background color change across the whole div with smooth transition */
+.habit-link:hover .d-flex {
+    background-color: #e0e0e0; /* Darker shade of bg-light (example: #e0e0e0) */
+    color: #333333; /* Change text color to dark for better visibility */
+    transition: background-color 0.3s ease; /* Smooth transition for background color change */
+}
+
+.habit_info {
+    background-color: lightgray;
+}
+
+/* Form styles */
+
+.form-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid grey;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    width: 500px;
+    padding: 4px 0;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    border-bottom-color: black;
+}
+
+#description-field, #color-field {
+    height: 50px;
+}

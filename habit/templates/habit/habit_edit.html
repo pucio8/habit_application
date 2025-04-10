@@ -1,0 +1,59 @@
+{% extends 'habit/base.html' %}
+
+{% block header_buttons %}
+<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center text-decoration-none">
+    <i class="bi bi-arrow-left" style="font-size: 1.5rem;"></i>
+    <span class="small">Back</span>
+</a>
+<div class="d-flex flex-column align-items-center">
+    <button type="submit" form="habit-form" class="btn btn-link text-white p-0 m-0" style="font-size: 1.5rem;">
+        <i class="bi bi-check2-circle" style="font-size: 1.5rem;"></i>
+    </button>
+    <span class="small text-white">Confirm</span>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4 ">
+    <h1 class="habit_heading fs-3 mb-4 text-center">Habit Edit</h1>
+    <div class="row">
+        <form id="habit-form" method="POST" class="post-form">{% csrf_token %}
+
+            <div class="form-group d-flex flex-column">
+                <label for="name-field" class="form-label fs-5">Habit Name</label>
+                {{ form.name }}
+                <label for="description-field" class="form-label pt-3 fs-5" >Description</label>
+                {{ form.description }}
+                <label for="color-field" class="form-label pt-3 fs-5" >Color</label>
+                <div>{{ form.color }}</div>
+                <label for="duration-field" class="form-label pt-3 fs-5" >Duration</label>
+                <div>{{ form.duration_days }}</div>
+                <label for="unlimited-checkbox" class="form-label pt-3 fs-5" >Unlimited</label>
+                <div>{{ form.is_unlimited }}</div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const durationInput = document.getElementById('duration-field');
+        const unlimitedCheckbox = document.getElementById('unlimited-checkbox');
+
+        function toggleCheckboxState() {
+        // When the input is a number and the number is not 0, the checkbox is disabled and unchecked
+            if (durationInput.value.trim() !== ''  && durationInput.value.trim() !== '0') {
+                unlimitedCheckbox.disabled = true;
+                unlimitedCheckbox.checked = false;
+            } else {
+                unlimitedCheckbox.disabled = false;
+            }
+        }
+
+        durationInput.addEventListener('input', toggleCheckboxState);
+
+        toggleCheckboxState();
+    });
+</script>
+{% endblock %}

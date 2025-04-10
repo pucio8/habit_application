@@ -1,0 +1,54 @@
+{% load custom_filters %}
+<div class="container mt-3">
+
+    <h2 class="fs-3 text-center mt-4">{{ month_name }} {{ year }} </h2>
+
+    <form id="calendar-form" method="post" action="{% url 'update_habit_calendar' pk=habit.pk %}" class="mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="day" id="selected-day">
+        <input type="hidden" name="action" id="selected-action">
+
+        <!--    Days of the week -->
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;">
+            <div style="text-align: center;">Mon</div>
+            <div style="text-align: center;">Tue</div>
+            <div style="text-align: center;">Wed</div>
+            <div style="text-align: center;">Thu</div>
+            <div style="text-align: center;">Fri</div>
+            <div style="text-align: center;">Sat</div>
+            <div style="text-align: center;">Sun</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap : 15px; margin-top: 1rem; justify-items: center; align-items: center;">
+
+            <!--        0|to:3  → range(0,first_weekday)  → range(0, 3)  →  [0, 1, 2]-->
+            {% for _ in 0|to:first_weekday %}
+            <div></div>
+            {% endfor %}
+
+            {% for day in days %}
+            {% with status=status_dict|get_item:day %}
+            <button
+                    type="button"
+                    class="day-button"
+                    data-day="{{ day }}"
+                    data-status="{% if status %}done{% elif status == False %}not_done{% else %}none{% endif %}"
+                    style="
+    border: {% if today == day %}2px solid red{% else %}none{% endif %};
+    padding: 10px;
+    background-color: {% if status %}lightgreen{% elif status == False %}lightcoral{% else %}lightgray{% endif %};
+    border-radius: 50%;
+    width: 60px; /* Szerokość przycisku */
+    height: 60px; /* Wysokość przycisku, aby był okrągły */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+          ">
+                {{ day }}
+            </button>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </form>
+</div>
