@@ -3,12 +3,12 @@
 {% block header_buttons %}
 <a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center
             text-decoration-none">
-    <i class="bi bi-arrow-left" style="font-size: 1.5rem;"></i>
+    <i class="bi bi-arrow-left fs-4"></i>
     <span class="small">Back</span>
 </a>
 <a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white d-flex flex-column align-items-center
             text-decoration-none">
-    <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
+    <i class="bi bi-gear fs-4"></i>
     <span class="small">Edit</span>
 </a>
 
@@ -44,31 +44,6 @@
         <a href="{% url 'habit_delete' pk=habit.pk %}" class="text-white text-decoration-none">Delete Habit</a>
     </button>
 </div>
-
-
-<script>
-    const form = document.getElementById('calendar-form');
-    const buttons = document.querySelectorAll('.day-button');
-    const inputDay = document.getElementById('selected-day');
-    const inputAction = document.getElementById('selected-action');
-
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const day = button.getAttribute('data-day');
-        let currentStatus = button.getAttribute('data-status');
-
-        // Rotacja statusów
-        let nextStatus;
-        if (currentStatus === 'none') nextStatus = 'done';
-        else if (currentStatus === 'done') nextStatus = 'not_done';
-        else nextStatus = 'none';
-
-        // Wysyłanie danych
-        inputDay.value = day;
-        inputAction.value = nextStatus;
-
-        form.submit();
-      });
-    });
-</script>
+{% load static %}
+<script src="{% static 'js/habit_detail.js' %}"></script>
 {% endblock %}

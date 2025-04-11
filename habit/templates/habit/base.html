@@ -4,15 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit List</title>
-    <!-- Bootstrap CSS -->
+    <title>Habit Tracker</title>
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!--    Own css-->
     <link rel="stylesheet" href="{% static 'css/habit.css' %}">
-    <!-- Google Fonts-->
     <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,16 +19,17 @@
 
 </head>
 
-<body class="d-flex flex-column bg-light" style="min-height: 100vh;">
+<body class="d-flex flex-column bg-light" style = "min-height: 100vh;">
 
 <header class="bg-dark text-white py-1">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="d-flex justify-content-center flex-grow-1">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div style="width: 100px;"></div>
+        <div class="text-center flex-grow-1">
             <a href="{% url 'habit_list' %}" class="text-white text-decoration-none">
                 <h1 class="mb-0">Habit Tracker</h1>
             </a>
         </div>
-        <div class="d-flex justify-content-end" style="gap: 20px;">
+        <div class="d-flex justify-content-end gap-3" style="width: 100px;">
             {% block header_buttons %}{% endblock %}
         </div>
     </div>
@@ -39,7 +37,6 @@
 
 {% if messages %}
 <ul>
-    <!--Alert-->
     {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         {{ message }}
@@ -49,7 +46,6 @@
 </ul>
 {% endif %}
 
-<!-- Content Block -->
 <div class="content-container" style="flex-grow: 1; overflow-y: auto;">
     {% block content %}
     {% endblock %}
@@ -60,18 +56,17 @@
         <div class="bottom-nav d-flex justify-content-center">
             <a href="{% url 'habit_list' %}" class="text-white mx-3 d-flex flex-column align-items-center
             text-decoration-none">
-                <i class="bi bi-list-check" style="font-size: 2.5rem; line-height: 1; margin-top: -4px;"></i>
+                <i class="bi bi-list-check"></i>
                 <span class="small">Habits</span>
             </a>
             <a href="{% url 'more' %}" class="text-white mx-3 d-flex flex-column align-items-center
             text-decoration-none">
-                <i class="bi bi-three-dots" style="font-size: 2.5rem; line-height: 1; margin-top: -4px;"></i>
+                <i class="bi bi-three-dots"></i>
                 <span class="small">More</span>
             </a>
         </div>
     </div>
 </footer>
 
-<!--BTS5 script -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

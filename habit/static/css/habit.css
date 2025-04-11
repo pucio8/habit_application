@@ -67,7 +67,6 @@ a > h1.mb-0 {
 }
 
 /* Form styles */
-
 .form-input {
     background-color: transparent;
     border: none;
@@ -86,4 +85,25 @@ a > h1.mb-0 {
 
 #description-field, #color-field {
     height: 50px;
+}
+
+.day-div {
+    text-align: center;
+}
+/* New habit (empty page) */
+.bi-plus-circle-dotted {
+    font-size: 4rem;
+}
+
+/* Footer images */
+.bi-three-dots {
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-top: -4px;
+}
+
+.bi-list-check {
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-top: -4px;
 }

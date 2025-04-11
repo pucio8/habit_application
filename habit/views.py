@@ -20,9 +20,12 @@ def habit_list(request):
 
 @login_required
 def habit_add(request):
-    """Add habit to habit_ist
-    Get - render habit post,
-    Post-redirect to habit list and render message"""
+    """
+        Add habit to habit_ist
+
+        Get - render habit post,
+        Post-redirect to habit list and render message
+    """
     if request.method == "POST":
         form = HabitForm(request.POST)
         if form.is_valid():
@@ -66,6 +69,12 @@ def habit_delete(request, pk):
 
 @login_required
 def habit_detail(request, pk):
+    """
+        Displays the habit details for a specific month.
+
+        Retrieves the habit, its statuses for the current month, and prepares data for rendering the calendar view.
+        Only accessible by logged-in users.
+        """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     today = date.today()
     current_day = today.day
@@ -95,6 +104,14 @@ def habit_detail(request, pk):
 
 @require_POST
 def update_habit_calendar(request, pk):
+    """
+        Updates or deletes a habit's status for a specific day.
+
+        Receives a POST request with the 'day' and 'action' parameters ('done', 'not_done', 'none').
+        Updates or deletes the corresponding HabitStatus entry for the authenticated user.
+
+        Redirects to the habit detail page after the update.
+        """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     day = int(request.POST.get('day'))  # eg. 9
     action = request.POST.get('action')  # 'done', 'not_done', 'none'
@@ -119,4 +136,8 @@ def update_habit_calendar(request, pk):
 
 @login_required
 def more(request):
+    """
+    Render more.html
+    (request for opinion)
+    """
     return render(request, 'habit/more.html', {})
