@@ -9,4 +9,5 @@ urlpatterns = [
     path('habit/<int:pk>/delete/', views.habit_delete, name='habit_delete'),
     path('habit/<int:pk>/calendar/', views.update_habit_calendar, name='update_habit_calendar'),
     path('more', views.more, name='more'),
+    path('settings/', views.settings_view, name='settings'),
 ]

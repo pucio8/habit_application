@@ -3,18 +3,19 @@ from calendar import monthrange
 from datetime import date
 
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from .forms import HabitForm
+from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
 from .models import Habit, HabitStatus
 
 
 @login_required
 def habit_list(request):
     """Render Habit list"""
-    habits = Habit.objects.order_by('id')  # default PK
+    habits = Habit.objects.filter(user=request.user).order_by('id')
     return render(request, 'habit/habit_list.html', {'habits': habits})
 
 
@@ -102,6 +103,7 @@ def habit_detail(request, pk):
     })
 
 
+@login_required
 @require_POST
 def update_habit_calendar(request, pk):
     """
@@ -141,3 +143,47 @@ def more(request):
     (request for opinion)
     """
     return render(request, 'habit/more.html', {})
+
+@login_required
+def settings_view(request):
+    """Render settings.html"""
+    return render(request, 'habit/settings.html')
+
+
+def login_view(request):
+    if request.method == 'POST':
+        form = CustomLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            remember_me = form.cleaned_data['remember_me']
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+
+                if remember_me:
+                    request.session.set_expiry(3600 * 24 * 30)
+                else:
+
+                    request.session.set_expiry(0)
+
+                return redirect('habit_list')
+            else:
+                form.add_error(None, "Invalid username or password")
+    else:
+        form = CustomLoginForm()
+
+    return render(request, 'registration/login.html', {'form': form})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your account has been created. You can now log in.')
+            return redirect('login')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

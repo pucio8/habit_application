@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 from datetime import date, timedelta
 
@@ -32,7 +33,7 @@ class Habit(models.Model):
         ('black', 'Black'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField("Habit Name", max_length=200, )
     description = models.TextField("Habit Description (Optional)", blank=True, null=True)
     color = models.CharField(max_length=10, choices=COLOR_CHOICES, default='blue')
@@ -105,7 +106,7 @@ class HabitStatus(models.Model):
     Constraints:
     - One entry per user, habit, and day
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     habit = models.ForeignKey('Habit', on_delete=models.CASCADE)
     date = models.DateField()  # day to which the logic applies
     done = models.BooleanField(null=True, default=None)
