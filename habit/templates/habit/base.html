@@ -72,8 +72,9 @@ justify-content-center {% else %} justify-content-start
 </div>
 
 
-<footer class="bg-dark text-white py-3 mt-auto">
+<footer class="bg-dark text-white py-3 mt-auto" style="min-height: 90px">
     <div class="container d-flex justify-content-center align-items-center">
+        {% if not request.path == '/login/' and not request.path == '/register/' %}
         <div class="bottom-nav d-flex justify-content-center">
             <a href="{% url 'habit_list' %}" class="text-white mx-3 d-flex flex-column align-items-center
             text-decoration-none">
@@ -86,6 +87,7 @@ justify-content-center {% else %} justify-content-start
                 <span class="small">More</span>
             </a>
         </div>
+        {% endif %}
     </div>
 </footer>
 
