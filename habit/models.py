@@ -1,5 +1,4 @@
-from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import  User
 from django.db import models
 from datetime import date, timedelta
 
@@ -34,7 +33,7 @@ class Habit(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField("Habit Name", max_length=200, )
+    name = models.CharField("Habit Name", max_length=200)
     description = models.TextField("Habit Description (Optional)", blank=True, null=True)
     color = models.CharField(max_length=10, choices=COLOR_CHOICES, default='blue')
     duration_days = models.PositiveIntegerField(null=True, blank=True)
@@ -53,7 +52,7 @@ class Habit(models.Model):
 
         start_date = self.created_at.date()
         today = date.today()
-        days_active = (today - self.created_at.date()).days + 1
+        days_active = (today - start_date).days + 1
 
         # Use duration_days if set and habit is not unlimited
         if self.duration_days and not self.is_unlimited:
@@ -66,8 +65,8 @@ class Habit(models.Model):
             habit=self,
             user=self.user,
             done=True,
-            date__lte=today, # less and equal
-            date__gte=start_date # greater and equal
+            date__lte=today, # less than or equal
+            date__gte=start_date # greater or equal
         ).count()
 
         return round((completed_days / days_active) * 100)
@@ -95,6 +94,29 @@ class Habit(models.Model):
 
         return streak
 
+    def best_streak(self):
+        """Returns the longest streak (consecutive days) the habit was completed."""
+        success_days = HabitStatus.objects.filter(
+            habit=self,
+            user=self.user,
+            done=True
+        ).order_by('date')
+
+        best = 0
+        current = 0
+        previous_date  = None
+        for success_day in success_days:
+            if previous_date is None:
+                current = 1
+            elif success_day.date == previous_date + timedelta(days=1):
+                current += 1
+            else:
+                current = 1
+
+            best = max(best,current)
+            previous_date = success_day.date
+
+        return best
 
     def __str__(self):
         return self.name

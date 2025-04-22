@@ -31,6 +31,7 @@
 <div class="container mt-3">
     <p><strong>Score:</strong> {{ habit.score }}%</p>
     <p><strong>Day in a row:</strong> {{ habit.current_streak }}</p>
+    <p><strong> Longest streak:</strong> {{ habit.best_streak }}</p>
     <p><strong>Created:</strong> {{ habit.created_at|date:"Y-m-d" }}</p>
     <p><strong>Description:</strong> {{ habit.description }}</p>
 

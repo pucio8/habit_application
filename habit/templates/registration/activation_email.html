@@ -1,0 +1,6 @@
+Hi {{ user.username }},
+<br><br>
+Thanks for registering on our site.
+Please click the link below to activate your account:
+<br><br>
+<a href="http://{{ domain }}{% url 'activate' uid token %}">Activate your account</a>
