@@ -2,4 +2,4 @@ asgiref==3.8.1
 Django==5.1.8
 python-dotenv==1.1.0
 sqlparse==0.5.3
-tzdata==2025.2pip
+tzdata==2025.2
