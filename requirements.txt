@@ -1,5 +1,8 @@
 asgiref==3.8.1
 Django==5.1.8
+django-redis==5.4.0
+Django-Verify-Email==3.0.3
 python-dotenv==1.1.0
+redis==5.2.1
 sqlparse==0.5.3
 tzdata==2025.2
