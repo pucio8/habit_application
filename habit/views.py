@@ -17,6 +17,19 @@ from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
 from .models import Habit, HabitStatus
 from .tokens import account_activation_token
 
+from django.core.cache import cache
+from django.http import JsonResponse
+
+
+def cache_test(request):
+    # Testujemy cache: spróbuj pobrać, jeśli brak – zapisz
+    value = cache.get('my_key')
+
+    if value is None:
+        cache.set('my_key', 'Hello from cache!', timeout=60)  # zapis na 60 sek
+        value = 'SET NEW VALUE'
+
+    return JsonResponse({'cached_value': value})
 
 @login_required
 def habit_list(request):

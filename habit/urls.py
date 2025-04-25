@@ -10,4 +10,5 @@ urlpatterns = [
     path('habit/<int:pk>/calendar/', views.update_habit_calendar, name='update_habit_calendar'),
     path('more', views.more, name='more'),
     path('settings/', views.settings_view, name='settings'),
+    path('cache-test/', views.cache_test, name='cache_test'),
 ]
