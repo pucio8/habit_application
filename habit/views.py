@@ -23,21 +23,16 @@ from django.http import JsonResponse
 
 
 def cache_test(request):
-    # Sprawdzanie, jaki backend cache jest używany
     if settings.USE_REDIS_CACHE:
-        # Jeśli używasz Redis
         data = cache.get("my_key")
         if data is None:
             cache.set("my_key", "Hello via HTTP!", timeout=60)
             data = "SET NEW VALUE"
     else:
-        # Jeśli używasz plikowego cache
-        data = cache.get("my_key")
-        if data is None:
-            cache.set("my_key", "Hello via File-Based Cache!", timeout=60)
-            data = "SET NEW VALUE"
+        data = "SET NEW VALUE"
 
     return JsonResponse({"cached_value": data})
+
 
 @login_required
 def habit_list(request):
