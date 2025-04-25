@@ -99,31 +99,19 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-USE_REDIS_CACHE = os.getenv('USE_REDIS_CACHE', 'none')
+USE_REDIS_CACHE = os.getenv("USE_REDIS_CACHE", "False") == "True"
 
-if USE_REDIS_CACHE == 'redis':
+if USE_REDIS_CACHE == True:
     CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': os.getenv('REDIS_LOCATION'),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                'PASSWORD': os.getenv('REDIS_PASSWORD'),
-                'SSL': True,
-            },
-        }
-    }
-elif USE_REDIS_CACHE == 'file':
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': BASE_DIR / 'cache_data',
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": BASE_DIR / "cache_data",
         }
     }
 else:
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "default": {
+            "BACKEND": 'django.core.cache.backends.dummy.DummyCache',
         }
     }
 

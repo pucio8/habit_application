@@ -13,6 +13,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
 
+from habits_application import settings
 from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
 from .models import Habit, HabitStatus
 from .tokens import account_activation_token
@@ -22,14 +23,21 @@ from django.http import JsonResponse
 
 
 def cache_test(request):
-    # Testujemy cache: spróbuj pobrać, jeśli brak – zapisz
-    value = cache.get('my_key')
+    # Sprawdzanie, jaki backend cache jest używany
+    if settings.USE_REDIS_CACHE:
+        # Jeśli używasz Redis
+        data = cache.get("my_key")
+        if data is None:
+            cache.set("my_key", "Hello via HTTP!", timeout=60)
+            data = "SET NEW VALUE"
+    else:
+        # Jeśli używasz plikowego cache
+        data = cache.get("my_key")
+        if data is None:
+            cache.set("my_key", "Hello via File-Based Cache!", timeout=60)
+            data = "SET NEW VALUE"
 
-    if value is None:
-        cache.set('my_key', 'Hello from cache!', timeout=60)  # zapis na 60 sek
-        value = 'SET NEW VALUE'
-
-    return JsonResponse({'cached_value': value})
+    return JsonResponse({"cached_value": data})
 
 @login_required
 def habit_list(request):
