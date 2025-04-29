@@ -1,6 +1,6 @@
 import calendar
 from calendar import monthrange
-from datetime import date, datetime
+from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
@@ -39,8 +39,7 @@ def cache_test(request):
 def habit_list(request):
     """Render Habit list"""
     habits = Habit.objects.filter(user=request.user).order_by('id')
-    timestamp = datetime.now().timestamp()
-    return render(request, 'habit/habit_list.html', {'habits': habits, 'timestamp': timestamp})
+    return render(request, 'habit/habit_list.html', {'habits': habits})
 
 
 @login_required
