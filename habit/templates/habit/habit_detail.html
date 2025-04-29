@@ -3,12 +3,12 @@
 {% block header_buttons %}
 <a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center
             text-decoration-none">
-    <i class="bi bi-arrow-left fs-4"></i>
+    <i class="header-icon bi bi-arrow-left fs-4 header-icon"></i>
     <span class="small">Back</span>
 </a>
 <a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white d-flex flex-column align-items-center
             text-decoration-none">
-    <i class="bi bi-gear fs-4"></i>
+    <i class="header-icon bi bi-gear fs-4 header-icon"></i>
     <span class="small">Edit</span>
 </a>
 
@@ -24,7 +24,7 @@
 
 {% include 'habit/habit_calendar.html' %}
 
-<div class="habit_info w-100 d-flex justify-content-center align-items-center" style="min-height: 70px;">
+<div class="habit-info w-100 d-flex justify-content-center align-items-center">
     <h3 class="text-center fs-3 ">Habit Info</h3>
 </div>
 
@@ -37,7 +37,7 @@
 
 </div>
 
-<div class="habit_info w-100 d-flex justify-content-center align-items-center" style="min-height: 70px;">
+<div class="habit-info w-100 d-flex justify-content-center align-items-center">
     <h3 class="text-center fs-3">Danger Zone</h3>
 </div>
 <div class="container mt-3 pb-5">

@@ -12,3 +12,8 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     path('', include('habit.urls')),
 ]
+
+handler404 = 'habit.views.custom_404'
+handler500 = 'habit.views.custom_500'
+handler403 = 'habit.views.custom_403'
+handler400 = 'habit.views.custom_400'

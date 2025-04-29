@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse, HttpResponseNotFound
 
 from habits_application import settings
 from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
@@ -247,3 +248,16 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, "Activation link is invalid or expired.")
         return redirect("login")
+
+
+def custom_404(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+def custom_500(request):
+    return render(request, 'errors/500.html', status=500)
+
+def custom_403(request, exception):
+    return render(request, 'errors/403.html', status=403)
+
+def custom_400(request, exception):
+    return render(request, 'errors/400.html', status=400)

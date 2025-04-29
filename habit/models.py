@@ -1,10 +1,12 @@
-from django.contrib.auth.models import  User
+from django.contrib.auth.models import User
 from django.db import models
 from datetime import date, timedelta
 
 
 class Habit(models.Model):
-    """Model representing a user-defined habit.
+    """
+    Model representing a user-defined habit.
+
     Fields:
     - user: Owner of the habit
     - name, description: Basic info
@@ -12,43 +14,52 @@ class Habit(models.Model):
     - duration_days: Optional fixed length (used if not unlimited)
     - is_unlimited: If True, habit has no time limit (default=False)
     - created_at, updated_at: Auto-managed timestamps
-    Model has 2 methods score and current_streak"""
-    FREQUENCY_CHOICES = [
-        (1, 'Every Day'),
-        (7, 'Weekly'),
-        (30, 'Monthly'),
-    ]
+
+    Model has 2 methods: score and current_streak.
+
+    Available colors for habits.
+
+    Note:
+    - In the database, colors are stored as simple names (e.g., 'brightblue', 'olive', 'gold').
+    - The hex codes below are only for visual reference:
+
+        #0466c8  (Bright Blue)
+        #606c38  (Olive)
+        #415a77  (Slate Blue)
+        #d62828  (Crimson)
+        #ffd60a  (Gold)
+        #9c89b8  (Thistle)
+        #ffa5ab  (Light Pink)
+        #b17f59  (Peru)
+    """
 
     COLOR_CHOICES = [
-        ('red', 'Red'),
-        ('blue', 'Blue'),
-        ('green', 'Green'),
-        ('yellow', 'Yellow'),
-        ('orange', 'Orange'),
-        ('purple', 'Purple'),
-        ('pink', 'Pink'),
-        ('brown', 'Brown'),
-        ('gray', 'Gray'),
-        ('black', 'Black'),
+        ('dodgerblue', 'Bright Blue'),
+        ('crimson', 'Tomato'),
+        ('gold', 'Gold'),
+        ('lightpink', 'Light Pink'),
+        ('olive', 'Olive'),
+        ('peru', 'Indian Red '),
+        ('slateblue', 'Indigo'),
+        ('thistle', 'Thistle'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField("Habit Name", max_length=200)
-    description = models.TextField("Habit Description (Optional)", blank=True, null=True)
-    color = models.CharField(max_length=10, choices=COLOR_CHOICES, default='blue')
+    description = models.CharField("Habit Description (Optional)", blank=True, null=True, max_length=200)
+    color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='blue')
     duration_days = models.PositiveIntegerField(null=True, blank=True)
-    is_unlimited = models.BooleanField(default=False)
-    # hidden auto field
+    is_unlimited = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    # hidden auto field
     updated_at = models.DateTimeField(auto_now=True)
 
     def score(self):
-        """ Calculates completion score (percentage) of the habit.
+        """Calculates completion score (percentage) of the habit.
         - Uses duration_days if set, or counts from creation date to today.
         - If no days have passed, returns 0 to avoid division by zero.
         Returns:
-       int: Completion score (0–100). """
+        int: Completion score (0–100).
+        """
 
         start_date = self.created_at.date()
         today = date.today()
@@ -65,8 +76,8 @@ class Habit(models.Model):
             habit=self,
             user=self.user,
             done=True,
-            date__lte=today, # less than or equal
-            date__gte=start_date # greater or equal
+            date__lte=today,
+            date__gte=start_date
         ).count()
 
         return round((completed_days / days_active) * 100)
@@ -104,7 +115,7 @@ class Habit(models.Model):
 
         best = 0
         current = 0
-        previous_date  = None
+        previous_date = None
         for success_day in success_days:
             if previous_date is None:
                 current = 1
@@ -113,7 +124,7 @@ class Habit(models.Model):
             else:
                 current = 1
 
-            best = max(best,current)
+            best = max(best, current)
             previous_date = success_day.date
 
         return best

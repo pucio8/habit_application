@@ -1,7 +1,7 @@
 {% load custom_filters %}
-<div class="container my-5">
+<div class="container my-3">
 
-    <h2 class="fs-3 text-center mt-4">{{ month_name }} {{ year }} </h2>
+    <h2 class="fs-3 text-center mt-2">{{ month_name }} {{ year }} </h2>
 
     <form id="calendar-form" method="post" action="{% url 'update_habit_calendar' pk=habit.pk %}" class="mt-4">
         {% csrf_token %}
@@ -35,15 +35,8 @@
                     data-status="{% if status %}done{% elif status == False %}not_done{% else %}none{% endif %}"
                     style="
     border: {% if today == day %}2px solid red{% else %}none{% endif %};
-    padding: 10px;
     background-color: {% if status %}lightgreen{% elif status == False %}lightcoral{% else %}lightgray{% endif %};
     border-radius: 50%;
-    width: 60px; /* Szerokość przycisku */
-    height: 60px; /* Wysokość przycisku, aby był okrągły */
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
           ">
                 {{ day }}
             </button>
