@@ -11,8 +11,6 @@ class Habit(models.Model):
     - user: Owner of the habit
     - name, description: Basic info
     - color: Used for UI styling
-    - duration_days: Optional fixed length (used if not unlimited)
-    - is_unlimited: If True, habit has no time limit (default=False)
     - created_at, updated_at: Auto-managed timestamps
 
     Model has 2 methods: score and current_streak.
@@ -48,39 +46,28 @@ class Habit(models.Model):
     name = models.CharField("Habit Name", max_length=200)
     description = models.CharField("Habit Description (Optional)", blank=True, null=True, max_length=200)
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='blue')
-    duration_days = models.PositiveIntegerField(null=True, blank=True)
-    is_unlimited = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def score(self):
-        """Calculates completion score (percentage) of the habit.
-        - Uses duration_days if set, or counts from creation date to today.
-        - If no days have passed, returns 0 to avoid division by zero.
-        Returns:
-        int: Completion score (0–100).
         """
-
-        start_date = self.created_at.date()
-        today = date.today()
-        days_active = (today - start_date).days + 1
-
-        # Use duration_days if set and habit is not unlimited
-        if self.duration_days and not self.is_unlimited:
-            days_active = min(days_active, self.duration_days)
-
-        if days_active == 0:
+        Calculates habit completion score between the first and last status entries.
+        Missing entries are treated as not done.
+        """
+        statuses = HabitStatus.objects.filter(habit=self, user=self.user)
+        if not statuses.exists():
             return 0
 
-        completed_days = HabitStatus.objects.filter(
-            habit=self,
-            user=self.user,
-            done=True,
-            date__lte=today,
-            date__gte=start_date
-        ).count()
+        start_date = statuses.order_by('date').first().date
+        end_date = statuses.order_by('-date').first().date
 
-        return round((completed_days / days_active) * 100)
+        total_days = (end_date - start_date).days + 1
+        status_dict = {s.date: s.done for s in statuses}
+
+        completed_days = sum(1 for i in range(total_days)
+                             if status_dict.get(start_date + timedelta(days=i)) is True)
+
+        return round((completed_days / total_days) * 100)
 
     def current_streak(self):
         """Returns the number of consecutive days the habit has been completed (streak)."""

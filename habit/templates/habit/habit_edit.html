@@ -27,15 +27,8 @@
                 {{ form.description }}
                 <label for="color-field" class="form-label pt-3 fs-5" >Color</label>
                 <div>{{ form.color }}</div>
-                <label for="duration-field" class="form-label pt-3 fs-5" >Duration</label>
-                <div>{{ form.duration_days }}</div>
-                <label for="unlimited-checkbox" class="form-label pt-3 fs-5" >Unlimited</label>
-                <div>{{ form.is_unlimited }}</div>
             </div>
         </form>
     </div>
 </div>
-
-{% load static %}
-<script src="{% static 'js/habit_add_edit.js' %}"></script>
 {% endblock %}

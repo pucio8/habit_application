@@ -1,4 +1,8 @@
-/* Global styles */
+/* === BASE GLOBAL SCALE (90%) === */
+html {
+    font-size: 14.4px; /* Default 16px * 0.9 = 14.4px */
+}
+
 html, body {
     height: 100%;
     margin: 0;
@@ -13,7 +17,7 @@ body {
     height: 100vh;
 }
 
-/* Layout */
+/* === HEADER === */
 header {
     position: sticky;
     top: 0;
@@ -25,82 +29,15 @@ header {
     white-space: nowrap;
 }
 
+.habit-title {
+    line-height: 60px;
+}
+
 a > h1 {
     font-family: 'Rock Salt', cursive;
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin: 0;
     padding: 0;
-}
-
-.habit-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.auth-page {
-    padding-top: 80px;
-    padding-bottom: 60px;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 20px;
-}
-
-footer a {
-    color: white;
-    text-decoration: none;
-}
-
-/* Component Styles */
-.habit-link:hover .d-flex {
-    background-color: #e0e0e0;
-    color: #333333;
-    transition: background-color 0.3s ease;
-}
-
-.table_heading {
-    font-size: 1.1rem;
-}
-
-.habit-info {
-    background-color: lightgray;
-}
-
-.form-input {
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid grey;
-    border-radius: 0;
-    outline: none;
-    box-shadow: none;
-    width: 500px;
-    padding: 4px 0;
-    font-size: 1rem;
-}
-
-.form-input:focus {
-    border-bottom-color: black;
-}
-
-.day-div {
-    text-align: center;
-}
-
-.bi-plus-circle-dotted {
-    font-size: 4rem;
-}
-
-.bi-three-dots, .bi-list-check {
-    font-size: 2.5rem;
-    line-height: 1;
-    margin-top: -4px;
 }
 
 .header-buttons {
@@ -108,7 +45,7 @@ footer a {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
 }
 
 .header-btn {
@@ -120,14 +57,87 @@ footer a {
     color: white;
     background: none;
     border: none;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .header-btn i {
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
-/* Calendar Styles */
+/* === MAIN LAYOUT === */
+.habit-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-page {
+    padding-top: 70px;
+    padding-bottom: 50px;
+}
+
+/* === FOOTER === */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.95rem;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-btn {
+    font-size: 2.2rem;
+    line-height: 1;
+    margin-top: -4px;
+}
+
+/* === HABIT ELEMENTS === */
+.habit-link:hover .d-flex {
+    background-color: #e0e0e0;
+    color: #333333;
+    transition: background-color 0.3s ease;
+}
+
+.table_heading {
+    font-size: 1rem;
+}
+
+.habit-info {
+    background-color: lightgray;
+    height: 70px;
+}
+
+.habit-info h3 {
+    margin: 0;
+    line-height: 70px;
+}
+
+/* === FORM ELEMENTS === */
+.form-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid grey;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    width: 450px;
+    padding: 4px 0;
+    font-size: 0.95rem;
+}
+
+.form-input:focus {
+    border-bottom-color: black;
+}
+
+/* === CALENDAR === */
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -135,32 +145,34 @@ footer a {
     text-align: center;
 }
 
-.day-div {
-    padding: 5px;
-}
-
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 15px;
+    gap: 13px;
     margin-top: 1rem;
     justify-items: center;
     align-items: center;
 }
 
+.day-div {
+    text-align: center;
+    padding: 5px;
+}
+
 .day-button {
     border: none;
-    padding: 10px;
+    padding: 8px;
     background-color: lightgray;
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
+    width: 54px;
+    height: 54px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s ease;
     color: #000000;
+    font-size: 0.95rem;
 }
 
 .day-button[data-status="done"] {
@@ -175,22 +187,46 @@ footer a {
     border: 2px solid red;
 }
 
-/* Responsive Styles */
+/* === NAVIGATION ARROWS === */
+.arrow-btn {
+    background: none;
+    border: none;
+    color: black;
+    font-size: 1.35rem;
+    padding: 0 8px;
+    cursor: pointer;
+}
+
+.arrow-btn:hover,
+.arrow-btn:focus {
+    color: black;
+    background: none;
+    outline: none;
+    box-shadow: none;
+}
+
+/* === ALERTS === */
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
     a > h1 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 
     .header-buttons {
         gap: 0.5rem;
     }
 
-    .header-btn i {
-        font-size: 1.5rem;
+    .header-btn {
+        font-size: 0.85rem;
     }
 
-    .header-btn {
-        font-size: 0.9rem;
+    .header-btn i {
+        font-size: 1.4rem;
     }
 
     button.header-btn {
@@ -199,34 +235,41 @@ footer a {
     }
 
     .day-button {
-        width: 10vw;
-        height: 10vw;
-        max-width: 50px;
-        max-height: 50px;
+        width: 9vw;
+        height: 9vw;
+        max-width: 48px;
+        max-height: 48px;
     }
 
     .calendar-weekdays {
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
+        gap: 6px;
     }
 }
 
 @media (max-width: 576px) {
-    .header-buttons {
-        gap: 0.5rem;
+    .habit-info {
+        height: 50px;
     }
 
-    .header-btn i {
-        font-size: 1.5rem;
+    .habit-info h3 {
+        line-height: 50px;
+    }
+
+    .header-buttons {
+        gap: 0.4rem;
     }
 
     .header-btn {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+    }
+
+    .header-btn i {
+        font-size: 1.3rem;
     }
 
     .day-button {
-        width: 12vw;
-        height: 12vw;
+        width: 11vw;
+        height: 11vw;
         max-width: 40px;
         max-height: 40px;
     }
@@ -238,29 +281,6 @@ footer a {
 
 @media (max-width: 480px) {
     .footer-btn {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
-}
-
-div.habit-info h3{
-    margin: 0;
-    line-height: 70px; /
-}
-div.habit-info{
-    height:70px;
-    background: #D3D3D3;
-}
-@media (max-width: 576px) {
-    div.habit-info {
-        height:50px;
-    }
-    div.habit-info h3 {
-    margin: 0;
-    line-height: 50px;
-    }
-}
-
-.alert-danger {
-    background-color: #f8d7da;  /* Jasny czerwony */
-    color: #721c24;  /* Ciemny czerwony tekst */
 }

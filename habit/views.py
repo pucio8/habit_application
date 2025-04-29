@@ -9,6 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
@@ -91,59 +92,104 @@ def habit_delete(request, pk):
     return render(request, 'habit/habit_delete_confirm.html', {'habit': habit})
 
 
+from calendar import monthrange
+from datetime import date
+
+
 @login_required
 def habit_detail(request, pk):
     """
-        Displays the habit details for a specific month.
-
-        Retrieves the habit, its statuses for the current month, and prepares data for rendering the calendar view.
-        Only accessible by logged-in users.
-        """
+    Displays the habit details for a specific month and allows switching between months.
+    Retrieves the habit, its statuses for the selected month, and prepares data for rendering the calendar view.
+    Only accessible by logged-in users.
+    """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
-    today = date.today()
-    current_day = today.day
-    year = today.year
-    month = today.month
-    month_name = calendar.month_name[month]
-    first_weekday, num_days = monthrange(year, month)  # 0-M, 1-T, ... 6-Sunday
+
+    try:
+        month = int(request.GET.get('month', date.today().month))
+        year = int(request.GET.get('year', date.today().year))
+    except ValueError:
+        month = date.today().month
+        year = date.today().year
+
+    num_days = monthrange(year, month)[1]
+    days = list(range(1, num_days + 1))
+
+    first_weekday = date(year, month, 1).weekday()
+
     statuses = HabitStatus.objects.filter(
         habit=habit,
         user=request.user,
         date__year=year,
         date__month=month
     )
-    # eg. status_dict = {1:True, 2:False .....}
-    status_dict = {status.date.day: status.done for status in statuses}
-    return render(request, 'habit/habit_detail.html', {
+
+    status_dict = {s.date.day: s.done for s in statuses}
+
+    def get_prev_next_month(month, year):
+        if month == 1:
+            prev_month = 12
+            prev_year = year - 1
+        else:
+            prev_month = month - 1
+            prev_year = year
+
+        if month == 12:
+            next_month = 1
+            next_year = year + 1
+        else:
+            next_month = month + 1
+            next_year = year
+
+        return {'month': prev_month, 'year': prev_year}, {'month': next_month, 'year': next_year}
+
+    prev_month, next_month = get_prev_next_month(month, year)
+
+    context = {
         'habit': habit,
-        'status_dict': status_dict,
-        'days': range(1, num_days + 1),
-        'year': year,
-        'month': month,
-        'month_name': month_name,
-        'today': current_day,
+        'days': days,
         'first_weekday': first_weekday,
-    })
+        'status_dict': status_dict,
+        'month': month,
+        'year': year,
+        'month_name': date(year, month, 1).strftime("%B"),
+        'today': date.today().day if date.today().month == month and date.today().year == year else -1,
+        'prev_month': prev_month,
+        'next_month': next_month,
+    }
+
+    return render(request, 'habit/habit_detail.html', context)
 
 
 @login_required
 @require_POST
 def update_habit_calendar(request, pk):
     """
-        Updates or deletes a habit's status for a specific day.
+    Updates or deletes a habit's status for a specific day in any selected month.
 
-        Receives a POST request with the 'day' and 'action' parameters ('done', 'not_done', 'none').
-        Updates or deletes the corresponding HabitStatus entry for the authenticated user.
+    POST parameters:
+    - 'day': day of the month (int)
+    - 'month': month (int)
+    - 'year': year (int)
+    - 'action': 'done', 'not_done', or 'none'
 
-        Redirects to the habit detail page after the update.
-        """
+    Redirects to the same calendar view for the selected month.
+    """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
-    day = int(request.POST.get('day'))  # eg. 9
-    action = request.POST.get('action')  # 'done', 'not_done', 'none'
-    today = date.today()
-    chosen_date = date(today.year, today.month, day)
+
+    day = int(request.POST.get('day'))
+    month = int(request.POST.get('month'))
+    year = int(request.POST.get('year'))
+    action = request.POST.get('action')
+
     if action not in ['done', 'not_done', 'none']:
-        return redirect('habit_detail', pk=habit.pk)
+        return redirect('habit_calendar', pk=habit.pk)
+
+    try:
+        chosen_date = date(year, month, day)
+    except ValueError:
+        return redirect('habit_calendar', pk=habit.pk)
+
     if action == 'none':
         HabitStatus.objects.filter(user=request.user, habit=habit, date=chosen_date).delete()
     else:
@@ -152,11 +198,11 @@ def update_habit_calendar(request, pk):
             habit=habit,
             date=chosen_date
         )
-        # Pass True or False
         status.done = (action == 'done')
         status.save()
 
-    return redirect('habit_detail', pk=habit.pk)
+    return redirect(f"{reverse('habit_calendar', kwargs={'pk': habit.pk})}?month={month}&year={year}")
+
 
 
 @login_required
