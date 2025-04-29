@@ -1,4 +1,7 @@
 /* === BASE GLOBAL SCALE (90%) === */
+* {
+    box-sizing: border-box; /* Zapewnia, że padding i border nie zwiększają szerokości elementu */
+}
 html {
     font-size: 14.4px; /* Default 16px * 0.9 = 14.4px */
 }
@@ -128,9 +131,14 @@ footer a {
     border-radius: 0;
     outline: none;
     box-shadow: none;
-    width: 450px;
+    width: 100%; /* Zajmuje całą dostępną szerokość */
+    max-width: 450px;
     padding: 4px 0;
     font-size: 0.95rem;
+}
+
+.post-form {
+    height: auto;
 }
 
 .form-input:focus {
