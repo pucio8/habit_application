@@ -1,6 +1,6 @@
 import calendar
 from calendar import monthrange
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse, HttpResponseNotFound
+
 
 from habits_application import settings
 from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
@@ -39,7 +39,8 @@ def cache_test(request):
 def habit_list(request):
     """Render Habit list"""
     habits = Habit.objects.filter(user=request.user).order_by('id')
-    return render(request, 'habit/habit_list.html', {'habits': habits})
+    timestamp = datetime.now().timestamp()
+    return render(request, 'habit/habit_list.html', {'habits': habits, 'timestamp': timestamp})
 
 
 @login_required
