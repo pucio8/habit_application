@@ -176,3 +176,4 @@ cython_debug/
 #my files
 description
 .env
+reset_db.bat
