@@ -1,13 +1,15 @@
-/* === BASE GLOBAL SCALE (90%) === */
+/* === GLOBAL STYLES === */
 * {
-    box-sizing: border-box; /* Zapewnia, że padding i border nie zwiększają szerokości elementu */
+    box-sizing: border-box; /* Ensures padding and borders don't affect width */
 }
+
 html {
     font-size: 14.4px; /* Default 16px * 0.9 = 14.4px */
 }
 
 html, body {
     height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
 }
@@ -20,7 +22,7 @@ body {
     height: 100vh;
 }
 
-/* === HEADER === */
+/* === HEADER STYLES === */
 header {
     position: sticky;
     top: 0;
@@ -32,42 +34,31 @@ header {
     white-space: nowrap;
 }
 
-.habit-title {
-    line-height: 60px;
+.center-title-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 10px 0;
 }
 
-a > h1 {
+.center-title-container a {
+    pointer-events: auto;
+}
+
+.habit-title {
     font-family: 'Rock Salt', cursive;
     font-size: 1.8rem;
     margin: 0;
     padding: 0;
 }
 
-.header-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 1.2rem;
-}
-
-.header-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: white;
-    background: none;
-    border: none;
-    font-size: 0.9rem;
-}
-
-.header-btn i {
-    font-size: 1.8rem;
-}
-
-/* === MAIN LAYOUT === */
+/* === MAIN CONTENT LAYOUT === */
 .habit-content {
     flex-grow: 1;
     overflow-y: auto;
@@ -82,27 +73,7 @@ a > h1 {
     padding-bottom: 50px;
 }
 
-/* === FOOTER === */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    font-size: 0.95rem;
-}
-
-footer a {
-    color: white;
-    text-decoration: none;
-}
-
-.footer-btn {
-    font-size: 2.2rem;
-    line-height: 1;
-    margin-top: -4px;
-}
-
-/* === HABIT ELEMENTS === */
+/* === HABIT ELEMENTS STYLES === */
 .habit-link:hover .d-flex {
     background-color: #e0e0e0;
     color: #333333;
@@ -123,7 +94,9 @@ footer a {
     line-height: 70px;
 }
 
-/* === FORM ELEMENTS === */
+/* === FORM ELEMENTS STYLES === */
+.habit-form-div {}
+
 .form-input {
     background-color: transparent;
     border: none;
@@ -131,8 +104,7 @@ footer a {
     border-radius: 0;
     outline: none;
     box-shadow: none;
-    width: 100%; /* Zajmuje całą dostępną szerokość */
-    max-width: 450px;
+    width: 100%; /* Occupies full width */
     padding: 4px 0;
     font-size: 0.95rem;
 }
@@ -145,7 +117,41 @@ footer a {
     border-bottom-color: black;
 }
 
-/* === CALENDAR === */
+.btn-submit {
+    color: white;
+    background-color: #212529;
+    border: none;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 25px;
+    width: 50%;
+}
+
+p a.btn-change-password {
+    color: white;
+    background-color: #212529;
+}
+
+p a.btn-change-password:hover {
+    background-color: #1a1d20;
+    color: white;
+}
+
+.btn-habit_tracker {
+    color: white;
+    background-color: #212529;
+}
+
+.btn-habit_tracker:hover {
+    color: white;
+    background-color: #212529;
+}
+
+.btn-submit:hover {
+    background-color: #343a40;
+}
+
+/* === CALENDAR STYLES === */
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -195,7 +201,7 @@ footer a {
     border: 2px solid red;
 }
 
-/* === NAVIGATION ARROWS === */
+/* === NAVIGATION ARROW BUTTON STYLES === */
 .arrow-btn {
     background: none;
     border: none;
@@ -213,7 +219,7 @@ footer a {
     box-shadow: none;
 }
 
-/* === ALERTS === */
+/* === ALERTS STYLES === */
 .alert-danger {
     background-color: #f8d7da;
     color: #721c24;
@@ -221,7 +227,7 @@ footer a {
 
 /* === RESPONSIVE DESIGN === */
 @media (max-width: 768px) {
-    a > h1 {
+    a > .habit-title {
         font-size: 1.3rem;
     }
 
@@ -255,6 +261,10 @@ footer a {
 }
 
 @media (max-width: 576px) {
+    .btn-submit {
+        width: 100%;
+    }
+
     .habit-info {
         height: 50px;
     }
@@ -287,8 +297,90 @@ footer a {
     }
 }
 
-@media (max-width: 480px) {
-    .footer-btn {
-        font-size: 1.8rem;
-    }
+/* === ICONS STYLES === */
+.plus-icon {
+    font-size: 2.5rem; /* Sets the icon size to 4 times the base font size */
+}
+
+/* === SIDEBAR STYLES === */
+.sidebar-icon-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.6rem;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    z-index: 1100;
+    height: 48px;
+    width: 48px;
+}
+
+.sidebar-icon-toggle .open-icon,
+.sidebar-icon-toggle .close-icon {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+}
+
+/* Initially, hide the X icon */
+.sidebar-icon-toggle .close-icon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* When checkbox is checked, hide hamburger and show X */
+#sidebar-toggle:checked ~ .sidebar-icon-toggle .open-icon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+#sidebar-toggle:checked ~ .sidebar-icon-toggle .close-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* Sidebar */
+.sidebar-css {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    max-width: 70vw;
+    height: 100%;
+    background-color: #212529;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    padding-top: 88px;
+}
+
+/* Show sidebar when clicked */
+#sidebar-toggle:checked ~ .sidebar-css {
+    transform: translateX(0);
+}
+
+/* Sidebar menu list */
+.sidebar-css nav ul {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.sidebar-css nav ul li {
+    margin: 20px 0;
+}
+
+.sidebar-css nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.3rem;
+    display: block;
+}
+
+.btn-logout {
+    text-decoration: none;
+    font-size: 1.3rem;
 }

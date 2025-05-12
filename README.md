@@ -15,21 +15,20 @@ This is a Django-based web application for tracking and managing user-defined ha
 ### Habit
 The `Habit` model represents a habit created by the user.
 
-- **user**: The user who created the habit.
-- **name**: The name of the habit.
-- **description**: A short description of the habit.
-- **color**: The UI color of the habit (for styling purposes).
-- **duration_days**: The number of days the habit should last (optional). If not set, the habit is unlimited.
-- **is_unlimited**: A boolean indicating if the habit has no end date (default is `False`).
+- **user**: The user who created the habit (ForeignKey to CustomUser).
+- **name**: The name of the habit (max length: 200).
+- **description**: A brief description of the habit (optional, max length: 200).
+- **color**: The UI color associated with the habit, selected from predefined colors (choices include "Bright Blue", "Tomato", "Gold", etc.).
 - **created_at**: Timestamp of when the habit was created.
 - **updated_at**: Timestamp of when the habit was last updated.
 
 Methods:
-- `score()`: Returns the completion score of the habit in percentage based on completed days.
-- `current_streak()`: Returns the current streak of consecutive days the habit has been completed.
+- `score()`: Calculates the completion percentage of the habit between the first and last status entries.
+- `current_streak()`: Returns the number of consecutive days the habit has been completed.
+- `best_streak()`: Returns the longest streak (consecutive days) the habit has been completed.
 
 ### HabitStatus
-The `HabitStatus` model tracks whether a user completed a habit on a given day.
+The HabitStatus model tracks whether a habit was completed on a specific day for a given user.
 
 - **user**: The user who marked the habit as done.
 - **habit**: The habit being tracked.

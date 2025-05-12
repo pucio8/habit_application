@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.db import models
 from datetime import date, timedelta
 
@@ -10,27 +9,31 @@ class Habit(models.Model):
     Model representing a user-defined habit.
 
     Fields:
-    - user: Owner of the habit
-    - name, description: Basic info
-    - color: Used for UI styling
-    - created_at, updated_at: Auto-managed timestamps
+    - user: The owner of the habit (ForeignKey to CustomUser)
+    - name: Name of the habit
+    - description: Optional description of the habit
+    - color: The color associated with the habit for UI styling
+    - created_at: Timestamp when the habit was created (auto-managed)
+    - updated_at: Timestamp when the habit was last updated (auto-managed)
 
-    Model has 2 methods: score and current_streak.
+    Methods:
+    - score: Calculates the completion percentage of the habit between the first and last status entries.
+    - current_streak: Returns the number of consecutive days the habit has been completed.
+    - best_streak: Returns the longest consecutive streak of days the habit has been completed.
 
-    Available colors for habits.
+    Available colors for habits:
+    - Bright Blue (dodgerblue)       #0466c8
+    - Tomato (crimson)               #d62828
+    - Gold (gold)                    #ffd60a
+    - Light Pink (lightpink)         #ffa5ab
+    - Olive (olive)                  #606c38
+    - Indian Red (peru)              #b17f59
+    - Indigo (slateblue)             #415a77
+    - Thistle (thistle)              #9c89b8
 
     Note:
-    - In the database, colors are stored as simple names (e.g., 'brightblue', 'olive', 'gold').
-    - The hex codes below are only for visual reference:
-
-        #0466c8  (Bright Blue)
-        #606c38  (Olive)
-        #415a77  (Slate Blue)
-        #d62828  (Crimson)
-        #ffd60a  (Gold)
-        #9c89b8  (Thistle)
-        #ffa5ab  (Light Pink)
-        #b17f59  (Peru)
+    - Colors are stored as simple names in the database (e.g., 'dodgerblue', 'crimson').
+    - Hex codes are provided for visual reference.
     """
 
     COLOR_CHOICES = [
@@ -54,7 +57,10 @@ class Habit(models.Model):
     def score(self):
         """
         Calculates habit completion score between the first and last status entries.
-        Missing entries are treated as not done.
+        Missing entries (no status) are treated as not done (0%).
+
+        Returns:
+        int: Completion percentage of the habit.
         """
         statuses = HabitStatus.objects.filter(habit=self, user=self.user)
         if not statuses.exists():
@@ -72,7 +78,12 @@ class Habit(models.Model):
         return round((completed_days / total_days) * 100)
 
     def current_streak(self):
-        """Returns the number of consecutive days the habit has been completed (streak)."""
+        """Returns the number of consecutive days the habit has been completed (streak).
+            The streak is counted starting from the current day and moving backwards.
+
+            Returns:
+                int: The number of consecutive days the habit was completed.
+                """
         check_date = date.today()
         streak = 0
 
@@ -95,7 +106,11 @@ class Habit(models.Model):
         return streak
 
     def best_streak(self):
-        """Returns the longest streak (consecutive days) the habit was completed."""
+        """Returns the longest streak (consecutive days) the habit was completed.
+
+            Returns:
+            int: The longest streak of consecutive days the habit was completed.
+            """
         success_days = HabitStatus.objects.filter(
             habit=self,
             user=self.user,
@@ -123,10 +138,20 @@ class Habit(models.Model):
 
 
 class HabitStatus(models.Model):
-    """Tracks daily completion of a habit.
+    """ Tracks daily completion of a habit.
     Each entry represents whether a user completed a specific habit on a given day.
+
     Constraints:
-    - One entry per user, habit, and day
+    - One entry per user, habit, and day (unique constraint).
+
+    Fields:
+    - user: The user who completed the habit
+    - habit: The habit that was completed
+    - date: The date for which the habit was completed
+    - done: Whether the habit was completed on the given day (True/False)
+
+    Meta:
+    - Ensures that a user can only have one entry per habit per day.
     """
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     habit = models.ForeignKey('Habit', on_delete=models.CASCADE)
@@ -134,8 +159,12 @@ class HabitStatus(models.Model):
     done = models.BooleanField(null=True, default=None)
 
     class Meta:
-        """Ensures a user can only have one logical per habit per day.
-        Prevents duplicate entries for the same habit on the same date."""
+        """Returns a string representation of the HabitStatus instance.
+            It shows the user's name, the habit name, the date, and whether the habit was completed (✔️/❌).
+
+        Returns:
+        str: A formatted string showing the habit status.
+        """
         unique_together = ('user', 'habit', 'date')  # does not allow to save duplicate for the same day
 
     def __str__(self):

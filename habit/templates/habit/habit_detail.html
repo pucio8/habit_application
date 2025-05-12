@@ -1,25 +1,11 @@
 {% extends 'habit/base.html' %}
 
-{% block header_buttons %}
-<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center
-            text-decoration-none">
-    <i class="header-icon bi bi-arrow-left fs-4 header-icon"></i>
-    <span class="small">Back</span>
-</a>
-<a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white d-flex flex-column align-items-center
-            text-decoration-none">
-    <i class="header-icon bi bi-gear fs-4 header-icon"></i>
-    <span class="small">Edit</span>
-</a>
-
-{% endblock %}
-
 {% block content %}
 
 <div class="w-100" style="background-color: {{ habit.color }};">
-    <h1 class="text-center fs-3 py-4 text-white">
+    <h2 class="text-center fs-3 py-4 text-white">
         {{ habit.name }}
-    </h1>
+    </h2>
 </div>
 
 {% include 'habit/habit_calendar.html' %}
@@ -34,17 +20,14 @@
     <p><strong> Longest streak:</strong> {{ habit.best_streak }}</p>
     <p><strong>Created:</strong> {{ habit.created_at|date:"Y-m-d" }}</p>
     <p><strong>Description:</strong> {{ habit.description }}</p>
-
-</div>
-
-<div class="habit-info w-100 d-flex justify-content-center align-items-center">
-    <h3 class="text-center fs-3">Danger Zone</h3>
-</div>
-<div class="container mt-3 pb-5">
-    <button class="btn btn-danger">
+    <button class="btn btn-dark">
+        <a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white text-decoration-none">Edit Habit</a>
+    </button>
+    <button class="btn btn-danger d-flex mt-3">
         <a href="{% url 'habit_delete' pk=habit.pk %}" class="text-white text-decoration-none">Delete Habit</a>
     </button>
 </div>
+
 {% load static %}
 <script src="{% static 'js/habit_detail.js' %}"></script>
 {% endblock %}

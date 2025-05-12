@@ -1,19 +1,5 @@
 {% extends 'habit/base.html' %}
 
-{% block header_buttons %}
-<a href="{% url 'habit_add' %}" class="text-white d-flex flex-column align-items-center
-            text-decoration-none">
-    <i class="bi bi-plus-circle fs-4 header-icon"></i>
-    <span class="small">Add</span>
-</a>
-<a href="{% url 'settings' %}" class="text-white d-flex flex-column align-items-center
-            text-decoration-none">
-    <i class="bi bi-gear fs-4 header-icon"></i>
-    <span class="small">Settings</span>
-</a>
-
-{% endblock %}
-
 {% block content %}
 
 {% if habits %}
@@ -50,7 +36,7 @@
 <div class="d-flex justify-content-center align-items-center flex-column text-center" style="height: 70vh;">
     <h1 class="mb-3">Add your first habit!</h1>
     <a href="{% url 'habit_add' %}" class="text-dark text-decoration-none">
-        <i class="bi bi-plus-circle-dotted"></i>
+        <i class="bi bi-plus-circle-dotted plus-icon"></i>
     </a>
 </div>
 

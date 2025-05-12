@@ -1,34 +1,28 @@
 {% extends 'habit/base.html' %}
 
-{% block header_buttons %}
-<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center text-decoration-none">
-    <i class="bi bi-arrow-left fs-4 header-icon"></i>
-    <span class="small">Back</span>
-</a>
-<div class="d-flex flex-column align-items-center">
-    <button type="submit" form="habit-form" class="btn btn-link text-white p-0 m-0 fs-4">
-        <i class="bi bi-check2-circle fs-4 header-icon"></i>
-    </button>
-    <span class="small text-white">Confirm</span>
-</div>
-{% endblock %}
-
 {% block content %}
+<div class="container mt-5">
+    <h2 class="habit_heading fs-3 text-center">Edit Habit</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="habit-form" method="POST" class="post-form mt-4">
+                {% csrf_token %}
+                <div class="form-group d-flex flex-column">
+                    <label for="name-field" class="form-label fs-5">Habit Name</label>
+                    {{ form.name }}
 
-<div class="container mt-4">
-    <h1 class="habit_heading fs-3 mb-4 text-center">Habit Edit</h1>
-    <div class="row">
-        <form id="habit-form" method="POST" class="post-form">{% csrf_token %}
+                    <label for="description-field" class="form-label pt-3 fs-5">Description</label>
+                    {{ form.description }}
 
-            <div class="form-group d-flex flex-column">
-                <label for="name-field" class="form-label fs-5">Habit Name</label>
-                {{ form.name }}
-                <label for="description-field" class="form-label pt-3 fs-5" >Description</label>
-                {{ form.description }}
-                <label for="color-field" class="form-label pt-3 fs-5" >Color</label>
-                <div>{{ form.color }}</div>
-            </div>
-        </form>
+                    <label for="color-field" class="form-label pt-3 fs-5">Color</label>
+                    <div>{{ form.color }}</div>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <button type="submit" class="btn-submit btn-lg fs-5">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

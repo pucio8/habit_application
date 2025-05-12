@@ -1,7 +1,5 @@
-import calendar
-from calendar import monthrange
-from datetime import date
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordResetConfirmView, PasswordChangeView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -9,14 +7,13 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
 
-
 from habits_application import settings
-from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm
+from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm, CustomSetPasswordForm, CustomPasswordChangeForm
 from .models import Habit, HabitStatus
 from .tokens import account_activation_token
 
@@ -24,7 +21,40 @@ from django.core.cache import cache
 from django.http import JsonResponse
 
 
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    """
+    View for changing user password using a custom form and template.
+    After a successful form submission, a success message is displayed and user is redirected to settings page.
+    """
+    form_class = CustomPasswordChangeForm
+    success_url = reverse_lazy("settings")
+    template_name = "habit/change_password.html"
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your password has been successfully changed!")
+        return super().form_valid(form)
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """
+    View for confirming password reset using a custom form and template.
+    After a successful reset, user is redirected to the login page with a success message.
+    """
+    form_class = CustomSetPasswordForm
+    success_url = reverse_lazy("login")
+    template_name = "registration/custom_password_reset_confirm.html"
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your password has been successfully changed!")
+        return super().form_valid(form)
+
+
 def cache_test(request):
+    """
+    A test view to demonstrate caching.
+    It stores a value in the cache if not already set, or retrieves it otherwise.
+    Returns a JsonResponse with the cached value.
+    """
     if settings.USE_REDIS_CACHE:
         data = cache.get("my_key")
         if data is None:
@@ -38,7 +68,10 @@ def cache_test(request):
 
 @login_required
 def habit_list(request):
-    """Render Habit list"""
+    """
+    Displays the list of habits for the logged-in user.
+    The habits are retrieved and rendered using a template.
+    """
     habits = Habit.objects.filter(user=request.user).order_by('id')
     return render(request, 'habit/habit_list.html', {'habits': habits})
 
@@ -46,10 +79,9 @@ def habit_list(request):
 @login_required
 def habit_add(request):
     """
-        Add habit to habit_ist
-
-        Get - render habit post,
-        Post-redirect to habit list and render message
+    Adds a new habit for the logged-in user.
+    On GET, renders the habit creation form.
+    On POST, saves the new habit and redirects to the habit list.
     """
     if request.method == "POST":
         form = HabitForm(request.POST)
@@ -66,7 +98,10 @@ def habit_add(request):
 
 @login_required
 def habit_edit(request, pk):
-    """Edit habit"""
+    """
+    Edits an existing habit for the logged-in user.
+    Retrieves the habit by primary key, renders the edit form, and saves the updates if valid.
+    """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     if request.method == "POST":
         form = HabitForm(request.POST, instance=habit)
@@ -83,7 +118,10 @@ def habit_edit(request, pk):
 
 @login_required
 def habit_delete(request, pk):
-    """Delete habit"""
+    """
+    Deletes a habit for the logged-in user.
+    On POST, the habit is deleted and a success message is shown.
+    """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     if request.method == 'POST':
         habit.delete()
@@ -101,7 +139,6 @@ def habit_detail(request, pk):
     """
     Displays the habit details for a specific month and allows switching between months.
     Retrieves the habit, its statuses for the selected month, and prepares data for rendering the calendar view.
-    Only accessible by logged-in users.
     """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
 
@@ -166,13 +203,7 @@ def habit_detail(request, pk):
 def update_habit_calendar(request, pk):
     """
     Updates or deletes a habit's status for a specific day in any selected month.
-
-    POST parameters:
-    - 'day': day of the month (int)
-    - 'month': month (int)
-    - 'year': year (int)
-    - 'action': 'done', 'not_done', or 'none'
-
+    Handles POST requests with day, month, year, and action parameters.
     Redirects to the same calendar view for the selected month.
     """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
@@ -204,23 +235,27 @@ def update_habit_calendar(request, pk):
     return redirect(f"{reverse('habit_calendar', kwargs={'pk': habit.pk})}?month={month}&year={year}")
 
 
-
 @login_required
 def more(request):
     """
-    Render more.html
-    (request for opinion)
+    Renders a simple 'more' page with an optional form or information.
     """
     return render(request, 'habit/more.html', {})
 
 
 @login_required
 def settings_view(request):
-    """Render settings.html"""
+    """
+    Renders the settings page for the logged-in user.
+    """
     return render(request, 'habit/settings.html')
 
 
 def login_view(request):
+    """
+    Custom login view.
+    Handles login attempts, authenticates users, and redirects to the habit list on success.
+    """
     if request.method == 'POST':
         form = CustomLoginForm(request.POST)
         if form.is_valid():
@@ -235,7 +270,6 @@ def login_view(request):
                 if remember_me:
                     request.session.set_expiry(3600 * 24 * 30)
                 else:
-
                     request.session.set_expiry(0)
 
                 return redirect('habit_list')
@@ -248,6 +282,10 @@ def login_view(request):
 
 
 def register(request):
+    """
+    Custom user registration view.
+    Allows users to register with a form, then sends an email with an activation link.
+    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -278,6 +316,10 @@ def register(request):
 
 
 def activate(request, uidb64, token):
+    """
+    Activates a user's account after clicking on the activation link.
+    Verifies the token and activates the user's account if valid.
+    """
     User = get_user_model()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -297,13 +339,28 @@ def activate(request, uidb64, token):
 
 
 def custom_404(request, exception):
+    """
+    Custom 404 error page.
+    """
     return render(request, 'errors/404.html', status=404)
 
+
 def custom_500(request):
+    """
+    Custom 500 error page.
+    """
     return render(request, 'errors/500.html', status=500)
 
+
 def custom_403(request, exception):
+    """
+    Custom 403 error page.
+    """
     return render(request, 'errors/403.html', status=403)
 
+
 def custom_400(request, exception):
+    """
+    Custom 400 error page.
+    """
     return render(request, 'errors/400.html', status=400)

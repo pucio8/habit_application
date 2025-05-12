@@ -1,13 +1,6 @@
 {% extends 'habit/base.html' %}
-{% block header_buttons %}
-<a href="{% url 'habit_list' %}" class="text-white d-flex flex-column align-items-center text-decoration-none">
-    <i class="bi bi-arrow-left fs-4"></i>
-    <span class="small">Back</span>
-</a>
-{% endblock %}
 
 {% block content %}
-
 
 <div class="d-flex justify-content-center align-items-center">
     <div class="text-center" style="width: 400px; max-width: 600px;">
@@ -15,7 +8,7 @@
             {% csrf_token %}
 
             <div class="mb-3 text-start">
-                <h1 class="mb-4 pt-3 text-center">Create Account</h1>
+                <h2 class="mb-4 pt-3 text-center">Create Account</h2>
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" placeholder="Enter username"
                        required>

@@ -1,25 +1,14 @@
 {% extends 'habit/base.html' %}
 
-{% block header_buttons %}
-<a href="{% url 'habit_list' %}" class="text-white mx-3 d-flex flex-column align-items-center
-            text-decoration-none">
-    <i class="bi bi-arrow-left fs-4 header-icon"></i>
-    <span class="small">Back</span>
-</a>
-{% endblock %}
-
 {% block content %}
 
 <div class="container mt-4">
-    <h1 class="habit_heading fs-3 mb-4 ">Settings account</h1>
+    <h2 class="habit_heading fs-3 mb-4 ">Settings account</h2>
 
     <hr>
     <p>Login: <strong>{{ request.user.username }}</strong></p>
     <p>Email: <strong>{{ request.user.email }}</strong></p>
+    <p><a href="{% url 'change_password' %}" class="btn btn-sm btn-change-password">Change Password</a></p>
 
-    <form method="POST" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-danger mt-3">Log out</button>
-    </form>
   </div>
 {% endblock %}
