@@ -1,23 +1,25 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
-from habit import views
-from habit.views import CustomPasswordResetConfirmView
+
+# This is the main URL router for the entire project.
+# It acts as a "switchboard," delegating requests to the appropriate app.
 
 urlpatterns = [
-    path('', include('habit.urls')),
+    # 1. Admin Site URLs
+    # Includes all the automatically generated URLs for the Django admin interface.
     path("admin/", admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('register/', views.register, name='register'),
-    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
-    path('reset-password/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('reset-password-done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset-complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    
+    # 2. User Account URLs
+    # Delegates all URLs starting with 'accounts/' (e.g., /accounts/login/, /accounts/register/)
+    path("accounts/", include('users.urls')),
+
+    # 3. Main Application URLs
+    # Delegates all other URLs to be handled by the urls.py file
+    path("", include('habit.urls')),
 ]
 
-handler404 = 'habit.views.custom_404'
-handler500 = 'habit.views.custom_500'
-handler403 = 'habit.views.custom_403'
-handler400 = 'habit.views.custom_400'
+# Custom Error Handlers
+handler400 = 'habits_application.views.custom_400' # Bad Request
+handler403 = 'habits_application.views.custom_403' # Forbidden
+handler404 = 'habits_application.views.custom_404' # Not Found
+handler500 = 'habits_application.views.custom_500' # Server Error

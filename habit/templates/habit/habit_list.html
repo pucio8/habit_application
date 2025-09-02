@@ -1,45 +1,71 @@
-{% extends 'habit/base.html' %}
-
-{% block content %}
-
+{% extends 'base.html' %} {% load static custom_filters %} {% block content %}
 {% if habits %}
+<div class="container my-4">
+  <h2 class="fs-3 mb-4 text-center text-md-start">Habit List</h2>
 
-<div class="container mt-4">
-    <h1 class="fs-3 mb-4">Habit List</h1>
-    <div class="row">
-        <div class="row col-12 mb-3">
-            <div class="col-8"></div>
-            <div class="col-2 table_heading text-center">In a row</div>
-            <div class="col-2 table_heading text-center">Score</div>
+  <!-- Table headings -->
+  <div class="row text-muted small text-center mb-2 d-none d-md-flex">
+    <div class="col-md-1 text-start ps-4">Color</div>
+    <div class="col-md-7 text-start ps-3">Habit</div>
+    <div class="col-md-2 pe-5">Streak</div>
+    <div class="col-md-2 text-end pe-5">Score</div>
+  </div>
+
+  <ul class="list-group">
+    {% for habit in habits %}
+    <a
+      href="{% url 'habit_detail' pk=habit.pk %}"
+      class="list-group-item list-group-item-action"
+    >
+      <!-- desktop version -->
+      <div class="d-none d-md-flex align-items-center py-3">
+        <div class="row w-100 align-items-center">
+          <div class="col-md-1 ps-3">
+            <div
+              class="habit-color-swatch"
+              style="--habit-color: {{ habit.color }};"
+            ></div>
+          </div>
+          <div class="col-md-7 ps-0">
+            <span>{{ habit.name }}</span>
+          </div>
+          <div class="col-md-2 text-center">{{ habit.current_streak }}</div>
+          <div class="col-md-2 text-end pe-3">{{ habit.score }}%</div>
         </div>
-        {% for habit in habits %}
-        <div class="col-12 mb-3">
-            <a href="{% url 'habit_detail' pk=habit.pk %}" class="text-dark text-decoration-none habit-link">
-                <div class="d-flex align-items-center justify-content-between p-3 border-bottom rounded ">
-                    <div class="col-1 rounded"
-                         style="width: 20px; height: 50px; background-color: {{ habit.color }};"></div>
+      </div>
 
-                    <div class="col-7  flex-grow-1 ms-3 ">{{ habit.name }}</div>
-
-                    <div class="col-2 text-center">{{ habit.current_streak }}</div>
-
-                    <div class="col-2 text-center">{{ habit.score }}%</div>
-                </div>
-            </a>
+      <!-- mobile version -->
+      <div class="d-md-none p-2">
+        <div class="d-flex align-items-center mb-2">
+          <div
+            class="habit-color-swatch me-3"
+            style="--habit-color: {{ habit.color }};"
+          ></div>
+          <span class="fw-bold">{{ habit.name }}</span>
         </div>
-        {% endfor %}
-    </div>
-</div>
-
-{% else %}
-
-<div class="d-flex justify-content-center align-items-center flex-column text-center" style="height: 70vh;">
-    <h1 class="mb-3">Add your first habit!</h1>
-    <a href="{% url 'habit_add' %}" class="text-dark text-decoration-none">
-        <i class="bi bi-plus-circle-dotted plus-icon"></i>
+        <div class="d-flex justify-content-around text-center border-top pt-2">
+          <div>
+            <small class="text-muted">Streak</small>
+            <div>{{ habit.current_streak }}</div>
+          </div>
+          <div>
+            <small class="text-muted">Score</small>
+            <div>{{ habit.score }}%</div>
+          </div>
+        </div>
+      </div>
     </a>
+    {% endfor %}
+  </ul>
 </div>
-
-{% endif %}
-
-{% endblock %}
+{% else %}
+<div class="page-centered">
+  <h2>You don't have any habits yet!</h2>
+  <p class="lead text-muted mb-4 text-center">
+    Start tracking your progress today by adding your first habit.
+  </p>
+  <a href="{% url 'habit_add' %}" class="text-dark text-decoration-none">
+    <i class="bi bi-plus-circle-dotted plus-icon fs-1"></i>
+  </a>
+</div>
+{% endif %} {% endblock %}

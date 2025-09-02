@@ -1,87 +1,56 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import PasswordResetConfirmView, PasswordChangeView
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.http import require_POST
-
-from habits_application import settings
-from .forms import HabitForm, CustomLoginForm, CustomUserCreationForm, CustomSetPasswordForm, CustomPasswordChangeForm
-from .models import Habit, HabitStatus
-from .tokens import account_activation_token
-
-from django.core.cache import cache
 from django.http import JsonResponse
+from django.core.cache import cache
+from habits_application import settings
+from . import utils
 
+from .forms import HabitForm
+from .models import Habit, HabitStatus
 
-class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
-    """
-    View for changing user password using a custom form and template.
-    After a successful form submission, a success message is displayed and user is redirected to settings page.
-    """
-    form_class = CustomPasswordChangeForm
-    success_url = reverse_lazy("settings")
-    template_name = "habit/change_password.html"
-
-    def form_valid(self, form):
-        messages.success(self.request, "Your password has been successfully changed!")
-        return super().form_valid(form)
-
-
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    """
-    View for confirming password reset using a custom form and template.
-    After a successful reset, user is redirected to the login page with a success message.
-    """
-    form_class = CustomSetPasswordForm
-    success_url = reverse_lazy("login")
-    template_name = "registration/custom_password_reset_confirm.html"
-
-    def form_valid(self, form):
-        messages.success(self.request, "Your password has been successfully changed!")
-        return super().form_valid(form)
+from calendar import Calendar
+from datetime import date
+import json
 
 
 def cache_test(request):
     """
-    A test view to demonstrate caching.
-    It stores a value in the cache if not already set, or retrieves it otherwise.
-    Returns a JsonResponse with the cached value.
+    A test view to demonstrate caching functionality with Redis.
+    
+    If caching is enabled, it stores a value in the cache if not already set,
+    or retrieves it otherwise. Returns a JsonResponse with the cached value.
     """
+    data = "Redis cache is not enabled."
     if settings.USE_REDIS_CACHE:
         data = cache.get("my_key")
         if data is None:
-            cache.set("my_key", "Hello via HTTP!", timeout=60)
-            data = "SET NEW VALUE"
-    else:
-        data = "SET NEW VALUE"
-
+            # Set a value in the cache with a 60-second timeout.
+            cache.set("my_key", "Hello from Redis cache!", timeout=60)
+            data = "Value was not in cache. SETTING a new one."
+    
     return JsonResponse({"cached_value": data})
 
 
 @login_required
 def habit_list(request):
     """
-    Displays the list of habits for the logged-in user.
-    The habits are retrieved and rendered using a template.
+    Displays the list of all habits for the currently logged-in user.
     """
     habits = Habit.objects.filter(user=request.user).order_by('id')
+    # Use a prefixed template path for better organization within the app.
     return render(request, 'habit/habit_list.html', {'habits': habits})
 
 
 @login_required
 def habit_add(request):
     """
-    Adds a new habit for the logged-in user.
-    On GET, renders the habit creation form.
-    On POST, saves the new habit and redirects to the habit list.
+    Handles the creation of a new habit.
+    
+    - On GET: Renders an empty form for creating a habit.
+    - On POST: Validates the submitted form data. If valid, creates a new
+      habit associated with the logged-in user and redirects to the habit list.
     """
     if request.method == "POST":
         form = HabitForm(request.POST)
@@ -99,102 +68,114 @@ def habit_add(request):
 @login_required
 def habit_edit(request, pk):
     """
-    Edits an existing habit for the logged-in user.
-    Retrieves the habit by primary key, renders the edit form, and saves the updates if valid.
+    Handles editing an existing habit.
+    
+    Retrieves the habit by its primary key (pk), ensuring it belongs to the
+    logged-in user.
+    - On GET: Renders the form pre-filled with the habit's data.
+    - On POST: Validates and saves the updated data.
     """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     if request.method == "POST":
         form = HabitForm(request.POST, instance=habit)
         if form.is_valid():
-            habit.save()
+            form.save()
             messages.success(request, f"Habit '{habit.name}' has been updated!")
             return redirect('habit_detail', pk=habit.pk)
         else:
-            messages.error(request, "Error creating the habit. Please make sure all required fields are filled in!")
+            messages.error(request, "Error updating the habit. Please check the form for errors.")
     else:
         form = HabitForm(instance=habit)
-    return render(request, 'habit/habit_edit.html', {'form': form})
+    # Use a prefixed template path for better organization.
+    return render(request, 'habit/habit_edit.html', {'form': form, 'habit': habit})
 
 
 @login_required
 def habit_delete(request, pk):
     """
-    Deletes a habit for the logged-in user.
-    On POST, the habit is deleted and a success message is shown.
+    Handles the deletion of a specific habit.
+    
+    - On GET: Displays a confirmation page before deleting.
+    - On POST: Deletes the habit and redirects to the habit list.
     """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
     if request.method == 'POST':
+        habit_name = habit.name
         habit.delete()
-        messages.success(request, f"Habit '{habit.name}' has been deleted!")
+        messages.success(request, f"Habit '{habit_name}' has been deleted!")
         return redirect('habit_list')
     return render(request, 'habit/habit_delete_confirm.html', {'habit': habit})
 
 
-from calendar import monthrange
-from datetime import date
+@login_required
+def more(request):
+    """
+    Renders a simple 'more' page.
+    """
+    return render(request, 'habit/more.html', {})
 
 
 @login_required
 def habit_detail(request, pk):
     """
-    Displays the habit details for a specific month and allows switching between months.
-    Retrieves the habit, its statuses for the selected month, and prepares data for rendering the calendar view.
+    Displays the detailed view of a habit, including a monthly calendar.
+
+    This view generates a calendar for a given month and year (or the current
+    month by default) and populates it with the habit's completion status for each day.
+    Days before the habit's start date are marked as 'disabled'.
     """
     habit = get_object_or_404(Habit, pk=pk, user=request.user)
-
+    today = date.today()
+    
     try:
-        month = int(request.GET.get('month', date.today().month))
-        year = int(request.GET.get('year', date.today().year))
-    except ValueError:
-        month = date.today().month
-        year = date.today().year
+        # Get year and month from GET parameters, defaulting to the current date.
+        year = int(request.GET.get('year', today.year))
+        month = int(request.GET.get('month', today.month))
+    except (ValueError, TypeError):
+        year, month = today.year, today.month
+    
+    current_date_obj = date(year, month, 1)
+    
+    # Fetch all habit statuses for the given month and year.
+    statuses = HabitStatus.objects.filter(habit=habit, date__year=year, date__month=month)
+    # Create a quick-access dictionary: {day_number: status (True/False)}
+    base_status_dict = {s.date.day: s.done for s in statuses}
 
-    num_days = monthrange(year, month)[1]
-    days = list(range(1, num_days + 1))
+    # --- Calendar Generation Logic ---
+    # Create a more detailed dictionary that accounts for disabled days.
+    detailed_status_dict = {}
+    habit_start_date = habit.start_date
+    cal = Calendar()
 
-    first_weekday = date(year, month, 1).weekday()
+    for day in cal.itermonthdays(year, month):
+        if day == 0:
+            # itermonthdays returns 0 for days outside the current month.
+            continue
+        
+        current_day_in_loop = date(year, month, day)
 
-    statuses = HabitStatus.objects.filter(
-        habit=habit,
-        user=request.user,
-        date__year=year,
-        date__month=month
-    )
-
-    status_dict = {s.date.day: s.done for s in statuses}
-
-    def get_prev_next_month(month, year):
-        if month == 1:
-            prev_month = 12
-            prev_year = year - 1
+        # 1. Check if the calendar day is before the habit's start date.
+        if current_day_in_loop < habit_start_date:
+            detailed_status_dict[day] = 'disabled'
         else:
-            prev_month = month - 1
-            prev_year = year
-
-        if month == 12:
-            next_month = 1
-            next_year = year + 1
-        else:
-            next_month = month + 1
-            next_year = year
-
-        return {'month': prev_month, 'year': prev_year}, {'month': next_month, 'year': next_year}
-
-    prev_month, next_month = get_prev_next_month(month, year)
+            # 2. If the day is valid, get its status (True, False, or None if not set).
+            detailed_status_dict[day] = base_status_dict.get(day, None)
+            
+    prev_month, next_month = utils.get_prev_next_month(month, year)
 
     context = {
         'habit': habit,
-        'days': days,
-        'first_weekday': first_weekday,
-        'status_dict': status_dict,
+        'days': [d for d in cal.itermonthdays(year, month) if d != 0],
+        'first_weekday': current_date_obj.weekday(),
+        'status_dict': detailed_status_dict,  # Pass the enhanced status dictionary.
         'month': month,
         'year': year,
-        'month_name': date(year, month, 1).strftime("%B"),
-        'today': date.today().day if date.today().month == month and date.today().year == year else -1,
+        'month_name': current_date_obj.strftime("%B"),
+        'today': today.day if today.month == month and today.year == year else -1,
         'prev_month': prev_month,
         'next_month': next_month,
     }
-
+    
     return render(request, 'habit/habit_detail.html', context)
 
 
@@ -202,165 +183,62 @@ def habit_detail(request, pk):
 @require_POST
 def update_habit_calendar(request, pk):
     """
-    Updates or deletes a habit's status for a specific day in any selected month.
-    Handles POST requests with day, month, year, and action parameters.
-    Redirects to the same calendar view for the selected month.
+    Handles AJAX requests to update a habit's status for a specific day.
+
+    It expects a JSON payload with 'day', 'month', 'year', and 'action'.
+    The 'action' determines the new state: 'done', 'not-done', or 'none' (unmarked).
+    
+    Returns a JSON response with the operation status, the new state of the day,
+    and the updated habit statistics (streaks, score).
     """
-    habit = get_object_or_404(Habit, pk=pk, user=request.user)
-
-    day = int(request.POST.get('day'))
-    month = int(request.POST.get('month'))
-    year = int(request.POST.get('year'))
-    action = request.POST.get('action')
-
-    if action not in ['done', 'not_done', 'none']:
-        return redirect('habit_calendar', pk=habit.pk)
-
     try:
-        chosen_date = date(year, month, day)
-    except ValueError:
-        return redirect('habit_calendar', pk=habit.pk)
+        data = json.loads(request.body)
+        habit = get_object_or_404(Habit, pk=pk, user=request.user)
+        
+        day = int(data.get('day'))
+        month = int(data.get('month'))
+        year = int(data.get('year'))
+        action = data.get('action')
 
-    if action == 'none':
-        HabitStatus.objects.filter(user=request.user, habit=habit, date=chosen_date).delete()
-    else:
-        status, _ = HabitStatus.objects.get_or_create(
-            user=request.user,
-            habit=habit,
-            date=chosen_date
-        )
-        status.done = (action == 'done')
-        status.save()
+        current_date = date(year, month, day)
 
-    return redirect(f"{reverse('habit_calendar', kwargs={'pk': habit.pk})}?month={month}&year={year}")
+        # This will be the new state sent back to the frontend.
+        new_state_for_js = 'none'
 
-
-@login_required
-def more(request):
-    """
-    Renders a simple 'more' page with an optional form or information.
-    """
-    return render(request, 'habit/more.html', {})
-
-
-@login_required
-def settings_view(request):
-    """
-    Renders the settings page for the logged-in user.
-    """
-    return render(request, 'habit/settings.html')
-
-
-def login_view(request):
-    """
-    Custom login view.
-    Handles login attempts, authenticates users, and redirects to the habit list on success.
-    """
-    if request.method == 'POST':
-        form = CustomLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            remember_me = form.cleaned_data['remember_me']
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-
-                if remember_me:
-                    request.session.set_expiry(3600 * 24 * 30)
-                else:
-                    request.session.set_expiry(0)
-
-                return redirect('habit_list')
-            else:
-                form.add_error(None, "Invalid username or password")
-    else:
-        form = CustomLoginForm()
-
-    return render(request, 'registration/login.html', {'form': form})
-
-
-def register(request):
-    """
-    Custom user registration view.
-    Allows users to register with a form, then sends an email with an activation link.
-    """
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-
-            current_site = get_current_site(request)
-            mail_subject = "Activate your account"
-            message = render_to_string("registration/activation_email.html", {
-                "user": user,
-                "domain": current_site.domain,
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": account_activation_token.make_token(user),
-            })
-            to_email = form.cleaned_data.get("email")
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
+        if action == 'done':
+            HabitStatus.objects.update_or_create(
+                habit=habit, date=current_date, user=request.user,
+                defaults={'done': True}
             )
-            email.content_subtype = "html"
-            email.send()
-            messages.success(request, "Please check your email to complete the registration")
-            return redirect("login")
+            new_state_for_js = 'done'
+        
+        elif action == 'not-done':
+            HabitStatus.objects.update_or_create(
+                habit=habit, date=current_date, user=request.user,
+                defaults={'done': False}
+            )
+            new_state_for_js = 'not-done'
 
-    else:
-        form = CustomUserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+        elif action == 'none':
+            # Delete the status object to represent an 'unmarked' state.
+            HabitStatus.objects.filter(habit=habit, date=current_date, user=request.user).delete()
+            # new_state_for_js remains 'none'.
 
+        # Recalculate stats and prepare them for the response.
+        # refresh_from_db() ensures the model instance has the latest data.
+        habit.refresh_from_db()
+        updated_stats = {
+            'current_streak': habit.current_streak(),
+            'best_streak': habit.best_streak(),
+            'score': habit.score()
+        }
 
-def activate(request, uidb64, token):
-    """
-    Activates a user's account after clicking on the activation link.
-    Verifies the token and activates the user's account if valid.
-    """
-    User = get_user_model()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+        # Send a detailed JSON response back to the client.
+        return JsonResponse({
+            'status': 'success', 
+            'new_state': new_state_for_js,
+            'stats': updated_stats
+        })
 
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        login(request, user)
-        messages.success(request, "Your account has been successfully activated!")
-        return redirect("login")
-    else:
-        messages.error(request, "Activation link is invalid or expired.")
-        return redirect("login")
-
-
-def custom_404(request, exception):
-    """
-    Custom 404 error page.
-    """
-    return render(request, 'errors/404.html', status=404)
-
-
-def custom_500(request):
-    """
-    Custom 500 error page.
-    """
-    return render(request, 'errors/500.html', status=500)
-
-
-def custom_403(request, exception):
-    """
-    Custom 403 error page.
-    """
-    return render(request, 'errors/403.html', status=403)
-
-
-def custom_400(request, exception):
-    """
-    Custom 400 error page.
-    """
-    return render(request, 'errors/400.html', status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

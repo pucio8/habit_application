@@ -1,0 +1,303 @@
+/* ==========================================================================
+   Component: Header Dropdown Menu (Mobile Sidebar)
+   Pattern: Uses the "checkbox hack" to toggle visibility without JavaScript.
+   ========================================================================== */
+
+/* Hide the actual checkbox, it's only used for its :checked state. */
+#sidebar-toggle-checkbox {
+  display: none;
+}
+
+/* The trigger is the hamburger icon/label that the user clicks. */
+.sidebar-trigger {
+  cursor: pointer;
+  font-size: 2.2rem;
+  position: relative;
+  /* Ensure the trigger is above other header content if needed. */
+  z-index: 1051;
+}
+
+.sidebar-trigger .open-icon,
+.sidebar-trigger .close-icon {
+  transition: color 0.2s ease-in-out;
+}
+
+.sidebar-trigger:hover .open-icon,
+.sidebar-trigger:hover .close-icon {
+  color: #cccccc; /* Subtle feedback on hover */
+}
+
+/* The close icon is hidden by default. */
+.close-icon {
+  display: none;
+}
+
+/* When the checkbox is checked (by clicking the trigger/label),
+   show the close icon... */
+#sidebar-toggle-checkbox:checked + .sidebar-trigger .close-icon {
+  display: inline-block;
+}
+
+/* ...and hide the open (hamburger) icon. */
+#sidebar-toggle-checkbox:checked + .sidebar-trigger .open-icon {
+  display: none;
+}
+
+/* The menu itself is positioned absolutely relative to the header. */
+.sidebar-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 280px;
+  background-color: var(--primary-dark);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  
+  /* Hidden by default with a starting position for the animation. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out,
+    visibility 0.2s;
+}
+
+/* When the checkbox is checked, the general sibling combinator (~)
+   targets the menu and makes it visible with a smooth transition. */
+#sidebar-toggle-checkbox:checked ~ .sidebar-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sidebar-menu .nav-link,
+.sidebar-menu .nav-link-button {
+  transition: color 0.2s ease-in-out;
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link-button:hover {
+  color: #cccccc !important;
+}
+
+
+/* ==========================================================================
+   Component: Form Card & Elements
+   ========================================================================== */
+
+/**
+ * A reusable container for forms that creates a modern, clean "card" look.
+ */
+.form-card {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: left;
+}
+
+.form-card .form-label {
+  margin-bottom: 0.5rem;
+}
+
+
+/* --- Underlined Input with Icon --- */
+
+/* Wrapper needed for positioning the icon relative to the input. */
+.input-wrapper {
+  position: relative;
+}
+
+/* Icon is absolutely positioned inside the wrapper. */
+.input-wrapper i {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%); /* Classic vertical centering trick */
+  color: var(--text-muted, #6c757d);
+  font-size: 1.2rem;
+  transition: color 0.2s ease-in-out;
+}
+
+/* Custom input style with only a bottom border. */
+.form-control-underline {
+  /* Overriding framework (e.g., Bootstrap) styles. */
+  background-color: transparent !important;
+  border: none;
+  border-radius: 0;
+  border-bottom: 2px solid #ccc;
+  /* Add padding on the left to make space for the icon. */
+  padding-left: 2.5rem !important; 
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 1.1rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+/* On focus, remove the default outline and change the border color. */
+.form-control-underline:focus {
+  outline: none;
+  box-shadow: none;
+  border-bottom-color: var(--accent-link);
+}
+
+/* The :focus-within pseudo-class is a modern way to style a parent
+   when a child element (the input) is focused. */
+.input-wrapper:focus-within i {
+  color: var(--accent-link);
+}
+
+.form-control-underline::placeholder {
+  color: #a9a9a9;
+  opacity: 1;
+}
+
+
+/* ==========================================================================
+   Component: Buttons
+   ========================================================================== */
+
+/**
+ * The main, reusable action button for the application.
+ * Creates a blue, pill-shaped button.
+ */
+.btn-pill-primary {
+  display: inline-block;
+  background-color: #0d6efd;
+  color: #ffffff;
+  font-weight: 400;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 50rem; /* Creates the "pill" shape */
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-pill-primary:hover {
+  background-color: #0b5ed7;
+  color: white;
+}
+
+/**
+ * A custom button with a simple outline for secondary actions.
+ */
+.btn-change-password {
+  border: 2px solid var(--primary-dark);
+  color: #000000;
+  background-color: transparent;
+  border-radius: 5px;
+  padding: 6px 12px;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-change-password:hover {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+
+/* ==========================================================================
+   Component: Habit Details & List
+   ========================================================================== */
+
+.habit-details-container {
+  width: 100%;
+  max-width: 550px; /* Same as calendar for visual alignment */
+  margin: auto;
+}
+
+/* Override default list group item background for a cleaner look. */
+.habit-stats .list-group-item {
+  background-color: transparent;
+}
+
+.stats-header,
+.actions-header {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.habit-color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: var(--habit-color, #ccc);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* --- Manage Habit Section --- */
+
+.manage-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+/* The adjacent sibling combinator (+) adds a separator line
+   to every action *except* the first one. */
+.manage-action + .manage-action {
+  border-top: 1px solid #dee2e6;
+}
+
+/* A container to give action buttons a consistent, fixed width,
+   ensuring they align vertically regardless of the text length. */
+.action-button-wrapper {
+  flex-basis: 100px; /* Allocate a fixed width */
+  flex-shrink: 0;   /* Prevent it from shrinking */
+}
+
+
+/* ==========================================================================
+   Component: Interactive "Add" Icon
+   ========================================================================== */
+
+.plus-icon {
+  display: inline-block;
+  transition: transform 0.4s ease-in-out;
+}
+
+/* Rotates the icon on hover for a delightful micro-interaction. */
+a:hover .plus-icon {
+  transform: rotate(180deg);
+}
+
+
+/* ==========================================================================
+   Component: Color Preview Swatch (in forms)
+   ========================================================================== */
+
+.color-preview-swatch {
+  /* Size and Shape */
+  width: 80px;
+  height: 40px;
+  border-radius: 6px; /* Slightly rounded corners */
+
+  /* Border for better contrast against backgrounds */
+  border: 1px solid #dee2e6;
+
+  /* Prevents the swatch from shrinking in a flex container */
+  flex-shrink: 0;
+
+  /* Smooth transition for when the color is changed dynamically */
+  transition: background-color 0.2s ease-in-out;
+}
+
+.alert-error {
+  color: #842029;
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+}

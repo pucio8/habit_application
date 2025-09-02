@@ -1,33 +1,69 @@
-{% extends 'habit/base.html' %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<div class="page-centered">
 
-<div class="w-100" style="background-color: {{ habit.color }};">
-    <h2 class="text-center fs-3 py-4 text-white">
-        {{ habit.name }}
-    </h2>
+    <div class="calendar-container mt-4 {% if show_disabled_state %}show-disabled-state{% endif %}">
+        {% include 'habit/components/_calendar.html' %}
+    </div>
+
+    <div class="habit-details-container mt-5">
+        <div class="habit-stats">
+            <h2 class="text-center text-md-start">Habit Statistics</h2>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="fs-5">Current Streak (last 30 days):</span>
+                    <strong class="fs-5" id="current-streak">{{ habit.current_streak }} days</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="fs-5">Best Streak:</span>
+                    <strong class="fs-5" id="best-streak">{{ habit.best_streak }} days</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="fs-5">Overall Score:</span>
+                    <strong class="fs-5" id="overall-score">{{ habit.score }}%</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="fs-5">Start Date:</span>
+                    <strong class="fs-5">{{ habit.start_date|date:"Y-m-d" }}</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="habit-manage mt-4">
+            <h2 class="text-center text-md-start">Manage Habit</h2>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fs-5">Edit Habit</span>
+                        <p class="small text-muted ">Change the name, description, or color.</p>
+                    </div>
+                    <div class="action-button-wrapper">
+                        <a href="{% url 'habit_edit' pk=habit.pk %}" class="btn btn-primary w-100">Edit</a>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fs-5">Delete Habit</span>
+                        <p class="small text-muted ">This action is permanent and cannot be undone.</p>
+                    </div>
+                    <div class="action-button-wrapper">
+                        <form method="post" action="{% url 'habit_delete' pk=habit.pk %}" onsubmit="return confirm('Are you sure you want to permanently delete this habit?');" class="m-0 d-grid">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
 </div>
+{% endblock content %}
 
-{% include 'habit/habit_calendar.html' %}
 
-<div class="habit-info w-100 d-flex justify-content-center align-items-center">
-    <h3 class="text-center fs-3 ">Habit Info</h3>
-</div>
-
-<div class="container mt-3">
-    <p><strong>Score:</strong> {{ habit.score }}%</p>
-    <p><strong>Day in a row:</strong> {{ habit.current_streak }}</p>
-    <p><strong> Longest streak:</strong> {{ habit.best_streak }}</p>
-    <p><strong>Created:</strong> {{ habit.created_at|date:"Y-m-d" }}</p>
-    <p><strong>Description:</strong> {{ habit.description }}</p>
-    <button class="btn btn-dark">
-        <a href="{% url 'habit_edit' pk=habit.pk %}" class="text-white text-decoration-none">Edit Habit</a>
-    </button>
-    <button class="btn btn-danger d-flex mt-3">
-        <a href="{% url 'habit_delete' pk=habit.pk %}" class="text-white text-decoration-none">Delete Habit</a>
-    </button>
-</div>
-
-{% load static %}
-<script src="{% static 'js/habit_detail.js' %}"></script>
-{% endblock %}
+{% block extra_scripts %}
+    {{ block.super }} 
+    <script src="{% static 'js/components/habit_calendar.js' %}"></script>
+{% endblock extra_scripts %}

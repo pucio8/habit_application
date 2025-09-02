@@ -1,0 +1,129 @@
+/* ==========================================================================
+   Component: Habit Calendar
+   Description: Styles for the interactive monthly habit tracker.
+   ========================================================================== */
+
+/* 1. Main Container
+   ========================================================================== */
+
+   .calendar-container {
+    width: 100%;
+    max-width: 550px;
+    margin: 1rem auto; /* Provides some vertical spacing on the page */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden; /* Ensures child elements respect the container's border radius */
+}
+
+/* 2. Calendar Navigation (Header)
+   ========================================================================== */
+
+.calendar-nav {
+    position: relative; /* Required for absolute positioning of the title */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--habit-color); /* Dynamically uses the habit's color */
+    color: white;
+    padding: 1rem;
+}
+
+/* Center the month/year title perfectly inside the navigation bar */
+.calendar-nav h2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+/* Navigation arrows for switching between months */
+.calendar-nav .arrow-btn {
+    background: transparent !important; /* Override default button styles */
+    border: none !important;           /* Override default button styles */
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.calendar-nav .arrow-btn:hover {
+    color: rgba(255, 255, 255, 0.8); /* Subtle feedback on hover */
+}
+
+
+/* 3. Calendar Grid and Headers
+   ========================================================================== */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* Creates a 7-column grid for days of the week */
+    gap: 5px;
+    background-color: #fff;
+    padding: 1rem;
+}
+
+/* Styling for the day-of-week headers (e.g., Mon, Tue) */
+.calendar-header {
+    font-weight: bold;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    color: #6c757d;
+}
+
+
+/* 4. Day Button Styling
+   ========================================================================== */
+
+/* Base style for all day buttons in the grid */
+.day-button {
+    aspect-ratio: 1 / 1; /* Creates a perfect square that scales with width */
+    width: 100%;
+    padding: 0;
+    border-radius: 50%; /* Makes the buttons circular */
+    border: 2px solid transparent;
+    background-color: #f8f9fa; /* Default light gray background */
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* --- Day Button States (Done, Not Done, Unmarked) --- */
+
+.day-button.status-done {
+    background-color: var(--habit-color);
+    color: #fff;
+    font-weight: bold;
+}
+
+.day-button.status-not-done {
+    background-color: #f8f9fa;
+    color: #adb5bd; /* Faded text color for missed days */
+    text-decoration: line-through;
+}
+
+.day-button.status-none {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+
+/* --- Special Day Styles (Today, Disabled) --- */
+
+/* Highlights the current day with a colored border */
+.day-button.today {
+    border: 3px solid var(--habit-color);
+    font-weight: bold;
+}
+
+/* Styles for days before the habit's start date */
+.day-button.day-disabled {
+    background-color: #f8f9fa; /* Light gray background */
+    color: #e9ecef;           /* Very light gray text to appear faded */
+    cursor: not-allowed;
+    text-decoration: none;
+    /* This is crucial to prevent a disabled day from also having a 'today' border */
+    border-color: transparent !important;
+}

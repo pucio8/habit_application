@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date, timedelta
+from django.utils import timezone
 
 from users.models import CustomUser
 
@@ -9,164 +10,192 @@ class Habit(models.Model):
     Model representing a user-defined habit.
 
     Fields:
-    - user: The owner of the habit (ForeignKey to CustomUser)
-    - name: Name of the habit
-    - description: Optional description of the habit
-    - color: The color associated with the habit for UI styling
-    - created_at: Timestamp when the habit was created (auto-managed)
-    - updated_at: Timestamp when the habit was last updated (auto-managed)
+    - user: The owner of the habit (ForeignKey to CustomUser).
+    - name: Name of the habit.
+    - description: Optional description of the habit.
+    - color: The color associated with the habit for UI styling.
+    - start_date: The date when the habit tracking begins.
+    - created_at: Timestamp when the habit was created (auto-managed).
+    - updated_at: Timestamp when the habit was last updated (auto-managed).
 
     Methods:
-    - score: Calculates the completion percentage of the habit between the first and last status entries.
-    - current_streak: Returns the number of consecutive days the habit has been completed.
-    - best_streak: Returns the longest consecutive streak of days the habit has been completed.
+    - score: Calculates the completion percentage of the habit over the last 30 days.
+    - current_streak: Returns the number of consecutive days the habit has been completed up to today or yesterday.
+    - best_streak: Returns the longest consecutive streak of days the habit has ever been completed.
 
     Available colors for habits:
-    - Bright Blue (dodgerblue)       #0466c8
-    - Tomato (crimson)               #d62828
-    - Gold (gold)                    #ffd60a
-    - Light Pink (lightpink)         #ffa5ab
-    - Olive (olive)                  #606c38
-    - Indian Red (peru)              #b17f59
-    - Indigo (slateblue)             #415a77
-    - Thistle (thistle)              #9c89b8
-
-    Note:
-    - Colors are stored as simple names in the database (e.g., 'dodgerblue', 'crimson').
-    - Hex codes are provided for visual reference.
+    - Blue:      #0d6efd
+    - Indigo:    #6f42c1
+    - Pink:      #d63384
+    - Red:       #dc3545
+    - Orange:    #fd7e14
+    - Yellow:    #ffc107
+    - Green:     #198754
+    - Teal:      #0dcaf0
+    - Gray:      #6c757d
     """
 
     COLOR_CHOICES = [
-        ('dodgerblue', 'Bright Blue'),
-        ('crimson', 'Tomato'),
-        ('gold', 'Gold'),
-        ('lightpink', 'Light Pink'),
-        ('olive', 'Olive'),
-        ('peru', 'Indian Red '),
-        ('slateblue', 'Indigo'),
-        ('thistle', 'Thistle'),
+        ("#0d6efd", "Blue"),
+        ("#6f42c1", "Indigo"),
+        ("#d63384", "Pink"),
+        ("#dc3545", "Red"),
+        ("#fd7e14", "Orange"),
+        ("#ffc107", "Yellow"),
+        ("#198754", "Green"),
+        ("#0dcaf0", "Teal"),
+        ("#6c757d", "Gray"),
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField("Habit Name", max_length=200)
-    description = models.CharField("Habit Description (Optional)", blank=True, null=True, max_length=200)
-    color = models.CharField(max_length=20, choices=COLOR_CHOICES, default='blue')
+    description = models.CharField(
+        "Habit Description (Optional)", blank=True, null=True, max_length=200
+    )
+    color = models.CharField(max_length=20, choices=COLOR_CHOICES, default="#0d6efd")
+    start_date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def score(self):
         """
-        Calculates habit completion score between the first and last status entries.
-        Missing entries (no status) are treated as not done (0%).
+        Calculates the habit's completion score as a percentage.
 
-        Returns:
-        int: Completion percentage of the habit.
+        The score is calculated for a 30-day window ending today, but does not
+        consider any days before the habit's official `start_date`.
         """
-        statuses = HabitStatus.objects.filter(habit=self, user=self.user)
+        today = date.today()
+        start_period = today - timedelta(days=29)
+
+        # The calculation period should not start before the habit's defined start date.
+        if start_period < self.start_date:
+            start_period = self.start_date
+
+        # Ensure the calculation does not include future days.
+        end_period = today
+        if self.start_date > today:
+            return 0  # If the habit is set to start in the future, its score is 0.
+
+        total_days_in_period = (end_period - start_period).days + 1
+        if total_days_in_period <= 0:
+            return 0
+
+        statuses = HabitStatus.objects.filter(
+            habit=self, user=self.user, date__range=[start_period, end_period]
+        )
+        completed_days = statuses.filter(done=True).count()
+
+        return round((completed_days / total_days_in_period) * 100)
+
+    def current_streak(self):
+        """
+        Calculates the current, unbroken streak of completed days for the habit.
+        
+        A streak is considered 'current' if the last completed day was either
+        today or yesterday. This allows for flexibility, e.g., completing a
+        habit late at night and marking it the next morning.
+        """
+        today = date.today()
+        # A streak cannot exist before the habit's start_date.
+        if today < self.start_date:
+            return 0
+
+        statuses = HabitStatus.objects.filter(
+            habit=self, user=self.user, date__lte=today, done=True
+        ).order_by('-date')
+
         if not statuses.exists():
             return 0
 
-        start_date = statuses.order_by('date').first().date
-        end_date = statuses.order_by('-date').first().date
-
-        total_days = (end_date - start_date).days + 1
-        status_dict = {s.date: s.done for s in statuses}
-
-        completed_days = sum(1 for i in range(total_days)
-                             if status_dict.get(start_date + timedelta(days=i)) is True)
-
-        return round((completed_days / total_days) * 100)
-
-    def current_streak(self):
-        """Returns the number of consecutive days the habit has been completed (streak).
-            The streak is counted starting from the current day and moving backwards.
-
-            Returns:
-                int: The number of consecutive days the habit was completed.
-                """
-        check_date = date.today()
+        # If the last completion was before yesterday, the current streak is broken.
+        if statuses.first().date not in [today, today - timedelta(days=1)]:
+            return 0
+            
         streak = 0
+        # Start checking for consecutive days from today backwards.
+        expected_date = today
 
-        while True:
-            try:
-                status = HabitStatus.objects.get(
-                    habit=self,
-                    user=self.user,
-                    date=check_date
-                )
-                if status.done:
-                    streak += 1
-                else:
-                    break
-            except HabitStatus.DoesNotExist:
+        for status in statuses:
+            if status.date == expected_date:
+                streak += 1
+                expected_date -= timedelta(days=1)
+            else:
+                # If there is a gap in dates, the streak is broken.
                 break
-
-            check_date -= timedelta(days=1)
-
+        
         return streak
 
     def best_streak(self):
-        """Returns the longest streak (consecutive days) the habit was completed.
-
-            Returns:
-            int: The longest streak of consecutive days the habit was completed.
-            """
-        success_days = HabitStatus.objects.filter(
-            habit=self,
-            user=self.user,
-            done=True
+        """
+        Calculates the longest unbroken streak of completed days for the habit
+        throughout its entire history.
+        """
+        # Only consider statuses from the habit's start_date onwards.
+        statuses = HabitStatus.objects.filter(
+            habit=self, user=self.user, done=True, date__gte=self.start_date
         ).order_by('date')
+        
+        if not statuses.exists():
+            return 0
 
-        best = 0
-        current = 0
-        previous_date = None
-        for success_day in success_days:
-            if previous_date is None:
-                current = 1
-            elif success_day.date == previous_date + timedelta(days=1):
-                current += 1
+        best_streak = 0
+        current_streak = 0
+        last_date = None
+
+        for status in statuses:
+            # Check if the current status is for the day after the last one.
+            if last_date and status.date == last_date + timedelta(days=1):
+                current_streak += 1
             else:
-                current = 1
-
-            best = max(best, current)
-            previous_date = success_day.date
-
-        return best
-
-    def __str__(self):
-        return self.name
+                # If not consecutive, reset and start a new streak count.
+                current_streak = 1
+            
+            if current_streak > best_streak:
+                best_streak = current_streak
+            
+            last_date = status.date
+            
+        return best_streak
 
 
 class HabitStatus(models.Model):
-    """ Tracks daily completion of a habit.
+    """
+    Tracks the daily completion status of a habit.
+
     Each entry represents whether a user completed a specific habit on a given day.
 
-    Constraints:
-    - One entry per user, habit, and day (unique constraint).
-
     Fields:
-    - user: The user who completed the habit
-    - habit: The habit that was completed
-    - date: The date for which the habit was completed
-    - done: Whether the habit was completed on the given day (True/False)
-
-    Meta:
-    - Ensures that a user can only have one entry per habit per day.
+    - user: The user associated with this status entry.
+    - habit: The habit this status entry refers to.
+    - date: The specific date for this status entry.
+    - done: Boolean indicating completion (True=done, False=not done, Null=unmarked).
     """
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    habit = models.ForeignKey('Habit', on_delete=models.CASCADE)
-    date = models.DateField()  # day to which the logic applies
-    done = models.BooleanField(null=True, default=None)
+    habit = models.ForeignKey("Habit", on_delete=models.CASCADE, related_name="statuses")
+    date = models.DateField()
+    done = models.BooleanField(
+        null=True,
+        default=None,
+        help_text="Tracks completion: True for done, False for not done, Null if not yet marked.",
+    )
 
     class Meta:
-        """Returns a string representation of the HabitStatus instance.
-            It shows the user's name, the habit name, the date, and whether the habit was completed (✔️/❌).
-
-        Returns:
-        str: A formatted string showing the habit status.
-        """
-        unique_together = ('user', 'habit', 'date')  # does not allow to save duplicate for the same day
+        # Ensures a user can only have one status entry per habit per day.
+        unique_together = (
+            "user",
+            "habit",
+            "date",
+        )
 
     def __str__(self):
-        status = "✔️" if self.done else "❌"
-        return f"{self.user.username} – {self.habit.name} on {self.date}: {status}"
+        """
+        Returns a string representation of the HabitStatus instance.
+
+        Example: "username – Habit Name on 2023-10-27: ✔️"
+
+        Returns:
+            str: A formatted string showing the user, habit, date, and completion status.
+        """
+        status_icon = "✔️" if self.done else "❌" if self.done is False else "➖"
+        return f"{self.user.username} – {self.habit.name} on {self.date}: {status_icon}"

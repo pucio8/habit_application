@@ -1,0 +1,21 @@
+/* === GLOBAL CONFIGURATION & VARIABLES === */
+:root {
+  /* Colors */
+  --primary-dark: #212529;
+  --primary-dark-hover: #343a40;
+  --primary-text-light: white;
+  --secondary-bg-light: #f8f9fa;
+  --border-color: grey;
+  --border-color-focus: black;
+  --accent-success: lightgreen;
+  --accent-danger: lightcoral;
+  --accent-link: #0d6efd;
+  --text-muted: #6c757d;
+
+  /* Fonts */
+  --font-logo: "Rock Salt", cursive;
+  --font-main: "Poppins", sans-serif;
+
+  --header-height: 80px; 
+  --footer-height: 50px; 
+}
