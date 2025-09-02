@@ -1,132 +1,197 @@
-# Habit Tracker Application
+# 🌱 Habit Application
 
-This is a Django-based web application for tracking and managing user-defined habits. Users can create habits, track their progress, and monitor their streaks of completion.
+A web application built with Django that helps users easily track, build, and maintain positive habits, keeping motivation high and streaks alive.
 
-## Features
+## Screenshots
 
-- **User Authentication**: Each user can create and manage their own habits.
-- **Habit Creation**: Users can define their habits with a name, description, color, and duration.
-- **Habit Tracking**: Users can mark habits as completed on specific days and track their progress.
-- **Streak Tracking**: The app tracks consecutive days of habit completion, showing the current streak of completed days.
-- **Completion Score**: Users can see a percentage score showing how much of their habit they have completed.
+Below are a few snapshots of the application interface.
 
-## Models
+### 1. Dashboard
+*Main view after logging in, showing habit progress.*
 
-### Habit
-The `Habit` model represents a habit created by the user.
+![Dashboard](static/screenshots/dashboard.png)
 
-- **user**: The user who created the habit (ForeignKey to CustomUser).
-- **name**: The name of the habit (max length: 200).
-- **description**: A brief description of the habit (optional, max length: 200).
-- **color**: The UI color associated with the habit, selected from predefined colors (choices include "Bright Blue", "Tomato", "Gold", etc.).
-- **created_at**: Timestamp of when the habit was created.
-- **updated_at**: Timestamp of when the habit was last updated.
+### 2. Habit Creation
+*Form to add a new habit with frequency, duration, and color.*
 
-Methods:
-- `score()`: Calculates the completion percentage of the habit between the first and last status entries.
-- `current_streak()`: Returns the number of consecutive days the habit has been completed.
-- `best_streak()`: Returns the longest streak (consecutive days) the habit has been completed.
+![Create Habit](static/screenshots/create-habit.png)
 
-### HabitStatus
-The HabitStatus model tracks whether a habit was completed on a specific day for a given user.
+### 3. Habit Progress
+*Visualization of completed and missed days.*
 
-- **user**: The user who marked the habit as done.
-- **habit**: The habit being tracked.
-- **date**: The date the habit was completed (or not completed).
-- **done**: A boolean indicating whether the habit was completed on the given day.
+![Habit Progress](static/screenshots/habit-progress.png)
 
-This model ensures that a user can only have one entry per habit per day.
+### 4. Habit Statistics
+*Habit statistics (current streak, best streak, overall score, start date).*
 
-## Setup
+![Habit Statistics](static/screenshots/habit-statistics.png)
 
-### Prerequisites
+---
 
-1. Python 3.x
-2. Django 5.x
+## Application Demo
 
-### Installation
+To see the application in action, please watch the short video demonstration:
 
-1. Clone the repository:
+**[Click here to watch the video demo](https://www.loom.com/share/a633947fb7274cf49dfc902c0e30eb0c?sid=f2ccf813-d953-4b37-8974-0bbd205aceb4)**
+
+---
+
+## Key Features
+
+* **User Accounts:** Secure authentication system.
+* **Habit Management:** Create, edit, and delete habits with customizable settings.
+* **Progress Tracking:** Calculate success rates and streaks automatically.
+* **Custom Colors:** Personalize habits with unique colors.
+* **Daily Check-ins:** Mark habits as complete or incomplete each day.
+* **Responsive Design:** Works smoothly on desktop and mobile.
+
+---
+
+## Tech Stack
+
+* **Backend:** Django, Django REST Framework
+* **Frontend:** Django Templates / HTMX (or React if chosen)
+* **Database:** PostgreSQL / MySQL / SQLite
+* **Authentication:** Django Auth
+* **Styling:** Bootstrap 5, CSS3
+
+---
+
+## Installation and Setup
+
+Follow these steps to set up and run the project locally.
+
+### 1. Prerequisites
+
+* **Python 3.10+**
+* A virtual environment tool (venv or pipenv)
+* **PostgreSQL/MySQL** (optional – SQLite works by default)
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/pucio8/habit_application.git
+cd habit_application
+```
+### 3. Create and Activate a Virtual Environment
+Windows:
+```bash
+python -m venv .venv
+.\.venv\Scripts\activate
+```
+macOS / Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 4. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+### 5. Configure Environment Variables
+Create a .env file in the project root and add:
+```bash
+# --- DATABASE SETTINGS (MySQL) ---
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+# --- DJANGO CORE SETTINGS ---
+SECRET_KEY=
+
+# Development (debug) mode. For local development, set to True.
+DEBUG=
+
+# Allowed hosts/domains for the application.
+# For local development, these values are standard.
+ALLOWED_HOSTS=
+
+# Email settings
+# --------------------------------------------------------------------------
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_USE_TLS=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+
+# CACHE SETTINGS 
+# --------------------------------------------------------------------------
+USE_REDIS_CACHE=
+```
+
+### 6. Run Migrations
+
+```bash
+python manage.py migrate
+```
+
+### 7. Start the Server
+
+```bash
+python manage.py runserver
+```
+
+The application will be available in your browser at http://127.0.0.1:8000.
+
+---
+
+## 🚀 How to Use
+
+You can run the application locally (see **Installation and Setup**) or deploy it online using **Render**.
+
+### Deploy on Render
+
+1. Push your code to GitHub, making sure it includes:
+   * `requirements.txt`
+   * `Procfile` (for Gunicorn)
+   * `.env` variables (add them later in Render dashboard)
+
+2. Go to [Render Dashboard](https://dashboard.render.com/) → **New Web Service**.
+
+3. Connect your GitHub repository.
+
+4. In the **Build Command**, set:
    ```bash
-   git clone https://github.com/pucio8/habits_application.git
-   cd habits_application
-   
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate  # Windows
-   
-3. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   
-4. Apply database migrations:
-   ```bash
-   python manage.py migrate
-   
-5. Create a superuser to access the Django admin:
-   ```bash
-   python manage.py createsuperuser
-   
-7. Start the development server:
-   ```bash
-   python manage.py runserver
-   
-8. You can log in to the admin interface at:
-   ```bash
-   http://127.0.0.1:8000/admin
+   pip install -r requirements.txt && python manage.py migrate
+   ```
+5. In the Start Command, set:
+    ```bash
+    gunicorn habit_application.wsgi:application
+    ```
 
-9. Access the application in your web browser at:
-   ```bash
-   http://127.0.0.1:8000/admin
-   
-## Usage
-After logging in, you can:
+Add your environment variables (e.g. SECRET_KEY, DEBUG, DB_NAME, etc.) in the Render dashboard.
 
-Create and manage your own habits.
-Mark habits as completed each day.
-View your habit completion scores and streaks.
+Render will assign you a public URL (e.g. https://your-app.onrender.com).
 
-## Contributing
+👉 Now your Habit Application is live and accessible from anywhere!
 
-Thank you for considering contributing to this project! Here are the guidelines for submitting contributions:
+---
 
-### How to contribute:
+## 🤝 Contributing
 
-1. **Fork the repository**:
-   - Click the "Fork" button on the top right of this repository to create your own copy of the project.
+Contributions are welcome!  
 
-2. **Create a new branch**:
-   - After forking, create a new branch for your changes:
-     ```bash
-     git checkout -b feature-name
-     ```
+If you’d like to improve this project, please follow these steps:
 
-3. **Make your changes**:
-   - Implement the new feature or bug fix you'd like to contribute.
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix:
 
-4. **Commit your changes**:
-   - Commit your changes to your branch with a clear and descriptive message:
-     ```bash
-     git commit -am 'Add feature-name'
-     ```
+```bash
+git checkout -b feature/your-feature-name
+```
 
-5. **Push your changes**:
-   - Push your changes to your fork:
-     ```bash
-     git push origin feature-name
-     ```
+Commit your changes:
 
-6. **Open a pull request**:
-   - Once your changes are pushed to your fork, go to the repository's main page and click on "New pull request".
-   - Make sure to target the `contribution` branch and not `main`.
+```bash
+git commit -m "Add: your descriptive commit message"
 
-### Important Notes:
-- **Only push to the `contribution` branch**: Pull requests to the `main` branch will be rejected.
-- **Pull requests will be reviewed manually**: Contributions submitted to the `contribution` branch will be reviewed before being considered for merging into the `main` branch.
-- **Do not merge into `main`**: We do not accept direct commits or pull requests to the `main` branch.
+Push to your branch:
+git push origin feature/your-feature-name
+Open a Pull Request on GitHub.
+```
 
-### Why the `contribution` branch?
-We have created a dedicated `contribution` branch to handle feature additions, bug fixes, and improvements. This ensures that all contributions are reviewed and tested before being merged into the main project. We prefer to keep `main` stable and free of unverified changes.
+Please make sure your code follows best practices and is well-documented. 🚀
 
-Thank you again for your interest in contributing!
+---

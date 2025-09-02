@@ -59,8 +59,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "habits_application.urls"
-WSGI_APPLICATION = "habits_application.wsgi.application"
+ROOT_URLCONF = "habit_application.urls"
+WSGI_APPLICATION = "habit_application.wsgi.application"
 
 
 # Step 5: Templates Configuration

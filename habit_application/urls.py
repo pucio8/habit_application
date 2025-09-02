@@ -19,7 +19,7 @@ urlpatterns = [
 ]
 
 # Custom Error Handlers
-handler400 = 'habits_application.views.custom_400' # Bad Request
-handler403 = 'habits_application.views.custom_403' # Forbidden
-handler404 = 'habits_application.views.custom_404' # Not Found
-handler500 = 'habits_application.views.custom_500' # Server Error
+handler400 = 'habit_application.views.custom_400' # Bad Request
+handler403 = 'habit_application.views.custom_403' # Forbidden
+handler404 = 'habit_application.views.custom_404' # Not Found
+handler500 = 'habit_application.views.custom_500' # Server Error
