@@ -1,0 +1,64 @@
+/* ==========================================================================
+   Component: Core Layout (Header, Main Content)
+   ========================================================================== */
+
+/* 1. Sticky Header
+   ========================================================================== */
+   header {
+    /* Makes the header stick to the top of the viewport when scrolling. */
+    position: sticky;
+    top: 0;
+    width: 100%;
+    min-height: var(--header-height);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* A high z-index ensures the header stays above other page content. */
+    z-index: 1050;
+  }
+  
+  /* A utility container to perfectly center an element (like a title)
+     within a relatively positioned parent (like the header). */
+  .center-title-container {
+    /* The classic absolute centering trick. */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .header-logo {
+    /* Typography and appearance for the main logo. */
+    font-family: var(--font-logo);
+    color: var(--primary-text-light);
+  }
+  
+  /* 2. Page Centering Wrapper
+     ========================================================================== */
+  
+  /**
+   * A flex container that centers its content both vertically and horizontally
+   * within the available viewport space (between the header and footer).
+   */
+  .page-centered {
+    /* Calculate the exact available height by subtracting header and footer
+       heights from the full viewport height (100vh). */
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertical alignment */
+    align-items: center;    /* Horizontal alignment */
+    padding: 1.5rem;
+  }
+  
+  /* 3. Header Layout Items
+     ========================================================================== */
+  
+  /**
+   * A class for items in the header (e.g., back button, menu icon) to ensure
+   * a balanced layout with a flexible center title.
+   */
+  .header-item {
+    /* Sets a fixed base width for the left and right columns. */
+    flex-basis: 60px;
+    /* Prevents these items from shrinking if the center title is very long. */
+    flex-shrink: 0;
+  }

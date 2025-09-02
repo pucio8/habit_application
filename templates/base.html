@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker</title>
+    
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+    
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header class="d-flex align-items-center bg-dark text-white px-3">
+
+        <div class="header-item">
+            {% if user.is_authenticated %}
+            <div class="sidebar-container">
+                <input type="checkbox" id="sidebar-toggle-checkbox">
+                <label for="sidebar-toggle-checkbox" class="sidebar-trigger">
+                    <i class="bi bi-list open-icon"></i>
+                    <i class="bi bi-x-lg close-icon"></i>
+                </label>
+                <div class="sidebar-menu p-3">
+                    <nav>
+                        <ul class="nav flex-column">
+                            <li class="nav-item mb-2"><a class="nav-link text-white fs-5" href="{% url 'habit_list' %}">My habits</a></li>
+                            <li class="nav-item mb-2"><a class="nav-link text-white fs-5" href="{% url 'habit_add' %}">Add Habit</a></li>
+                            <li class="nav-item mb-2"><a class="nav-link text-white fs-5" href="{% url 'account' %}">Account</a></li>
+                            <li class="nav-item mb-2"><a class="nav-link text-white fs-5" href="{% url 'more' %}">More Information</a></li>
+                            <li class="nav-item mb-2">
+                                <form method="POST" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-white fs-5 nav-link nav-link-button">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    
+        <div class="header-item flex-grow-1 text-center">
+            <a href="{% url 'habit_list' %}" class="text-decoration-none">
+                <h1 class="header-logo text-white fs-4 fs-md-2 m-0">Habit Tracker</h1>
+            </a>
+        </div>
+    
+        <div class="header-item">
+            </div>
+    
+    </header>
+
+    {% include 'includes/_messages.html' %}
+    {% include 'includes/_form_errors.html' %}
+
+    <main class="flex-grow-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="text-center text-muted p-2 mt-auto">
+        Page cretated by plomat23@gmail.com
+    </footer>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

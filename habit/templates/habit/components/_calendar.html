@@ -1,0 +1,57 @@
+{% load static custom_filters %}
+
+<div style="--habit-color: {{ habit.color }};">
+    <div class="calendar-nav">
+        <form method="get" action="" class="m-0">
+            <input type="hidden" name="month" value="{{ prev_month.month }}" />
+            <input type="hidden" name="year" value="{{ prev_month.year }}" />
+        <button type="submit" class="arrow-btn" aria-label="Previous month">&lt;</button>
+    </form>
+    <h2>{{ month_name }} {{ year }}</h2>
+    <form method="get" action="" class="m-0">
+        <input type="hidden" name="month" value="{{ next_month.month }}" />
+        <input type="hidden" name="year" value="{{ next_month.year }}" />
+        <button type="submit" class="arrow-btn" aria-label="Next month">&gt;</button>
+    </form>
+</div>
+
+<form id="calendar-form" method="post" action="{% url 'update_habit_calendar' pk=habit.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="month" value="{{ month }}" />
+    <input type="hidden" name="year" value="{{ year }}" />
+    <input type="hidden" name="day" id="selected-day" />
+    <input type="hidden" name="action" id="selected-action" />
+    <div class="calendar-grid">
+        <div class="calendar-header">Mon</div>
+        <div class="calendar-header">Tue</div>
+        <div class="calendar-header">Wed</div>
+        <div class="calendar-header">Thu</div>
+        <div class="calendar-header">Fri</div>
+        <div class="calendar-header">Sat</div>
+        <div class="calendar-header">Sun</div>
+
+        {% for _ in 0|to:first_weekday %}
+        <div></div>
+        {% endfor %}
+        
+        {% for day in days %}
+        {% with status=status_dict|get_item:day %}
+        
+            <button type="button" 
+                    class="day-button 
+                        {% if status == 'disabled' %}day-disabled
+                        {% elif status == True %}status-done
+                        {% elif status == False %}status-not-done
+                        {% else %}status-none
+                        {% endif %}
+                        {% if today == day and status != 'disabled' %}today{% endif %}" 
+                    {% if status == 'disabled' %}disabled{% endif %} 
+                    data-day="{{ day }}">
+                    {{ day }}
+                </button>
+                
+                {% endwith %}
+                {% endfor %}
+    </div>
+</form>
+</div>

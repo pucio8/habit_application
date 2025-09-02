@@ -1,32 +1,56 @@
-import os
 from pathlib import Path
-from dotenv import load_dotenv
+import environ
+import sys
 
+
+# Step 1: Initialize django-environ
+# ==============================================================================
+env = environ.Env(
+    # Set casting and default values for key variables
+    DEBUG=(bool, False) # Automatically cast DEBUG to a boolean (True/False)
+)
+
+
+# Step 2: Set paths and read the .env file
+# ==============================================================================
+# BASE_DIR points to the project's root folder (where manage.py is)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
+# Read environment variables from the .env file. This replaces load_dotenv()
+environ.Env.read_env(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG", default="False") == "True"
+# Step 3: Core Security Settings
+# ==============================================================================
+# WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+# WARNING: don't run with debug turned on in production!
+DEBUG = env('DEBUG')
 
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+
+
+# Step 4: Application & Middleware Definitions
+# ==============================================================================
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # External Apps
     "django.contrib.staticfiles",
-    "habit",
-    "users",
-]
+    # Local Apps
+    "widget_tweaks",
+    "habit.apps.HabitConfig", # Explicit app config
+    "users.apps.UsersConfig", # Explicit app config
 
-AUTH_USER_MODEL = "users.CustomUser"
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -36,11 +60,15 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "habits_application.urls"
+WSGI_APPLICATION = "habits_application.wsgi.application"
 
+
+# Step 5: Templates Configuration
+# ==============================================================================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "habit" / "templates"],
+        "DIRS": [BASE_DIR / "templates"], # Points to the global templates directory
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -53,54 +81,81 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "habits_application.wsgi.application"
+
+# Step 6: Database Configuration
+# ==============================================================================
+DATABASES = {
+    # env.db() is a powerful function that can parse a full DATABASE_URL string,
+    # e.g., mysql://user:password@host:port/name
+    # But for readability, we can also read each variable separately:
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env.int('DB_PORT', default=3306),
+    }
+}
+
+# Switch to an in-memory SQLite database when running tests
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+# Step 7: Authentication Settings
+# ==============================================================================
+AUTH_USER_MODEL = "users.CustomUser"
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "Europe/Warsaw"
-
-USE_I18N = True
-
-USE_TZ = True
-
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGIN_REDIRECT_URL = "habit_list"
 LOGOUT_REDIRECT_URL = "login"
 LOGIN_URL = "login"
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
+
+# Step 8: Internationalization & Static Files
+# ==============================================================================
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Europe/Warsaw"
+USE_I18N = True
+USE_TZ = True
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Step 9: Email Settings
+# ==============================================================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_SUBJECT_PREFIX = "[Habit Tracker]"
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default=None)
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default=None)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
+EMAIL_SUBJECT_PREFIX = env('EMAIL_SUBJECT_PREFIX', default='[Habit Tracker]')
 
-USE_REDIS_CACHE = os.getenv("USE_REDIS_CACHE", "False") == "True"
 
-if USE_REDIS_CACHE == True:
+# Step 10: Cache Settings
+# ==============================================================================
+USE_REDIS_CACHE = env.bool('USE_REDIS_CACHE', default=False)
+
+if USE_REDIS_CACHE:
     CACHES = {
+        # A Redis configuration could be placed here in the future
         "default": {
             "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
             "LOCATION": BASE_DIR / "cache_data",
@@ -112,15 +167,3 @@ else:
             "BACKEND": 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
-}
-

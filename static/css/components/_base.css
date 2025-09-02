@@ -1,0 +1,19 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--secondary-bg-light);
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.75rem; 
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
