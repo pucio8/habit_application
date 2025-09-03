@@ -139,31 +139,61 @@ The application will be available in your browser at http://127.0.0.1:8000.
 
 ## 🚀 How to Use
 
-You can run the application locally (see **Installation and Setup**) or deploy it online using **Render**.
+You can run the application locally or deploy it online using **PythonAnywhere**.
 
-### Deploy on Render
+### Deploy on PythonAnywherer
 
 1. Push your code to GitHub, making sure it includes:
    * `requirements.txt`
    * `Procfile` (for Gunicorn)
-   * `.env` variables (add them later in Render dashboard)
+   * Do NOT push your .env file to GitHub.
+   Instead, create it or set environment variables directly on PythonAnywhere (Web → Environment Variables) with:
+   SECRET_KEY, DEBUG, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
-2. Go to [Render Dashboard](https://dashboard.render.com/) → **New Web Service**.
+2. Create a web app on PythonAnywhere:
+   * Choose **Manual configuration → Python 3.13**
+   * Set **Working Directory**: `/home/<your_username>/<your_project_name>/`
+   * WSGI file path: `/var/www/<your_pythonanywhere_subdomain>_pythonanywhere_com_wsgi.py`
 
-3. Connect your GitHub repository.
-
-4. In the **Build Command**, set:
+3. Clone your repository in PythonAnywhere console:
    ```bash
-   pip install -r requirements.txt && python manage.py migrate
+   git clone https://github.com/<your_github_username>/<your_project_name>.git
+   cd <your_project_name>
+   git pull origin main
    ```
-5. In the Start Command, set:
-    ```bash
-    gunicorn habit_application.wsgi:application
-    ```
 
-Add your environment variables (e.g. SECRET_KEY, DEBUG, DB_NAME, etc.) in the Render dashboard.
+4. Activate your virtual environment and install dependencies:
+   ```bash
+   source /home/<your_username>/.virtualenvs/<your_venv_name>/bin/activate
+   pip install -r requirements.txt
+   ```
+   
+5. Set environment variables via PythonAnywhere Web → Environment Variables (or create a .env file manually in your project directory and fill it with the secret values).
 
-Render will assign you a public URL (e.g. https://your-app.onrender.com).
+    
+6. Run migrations:
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+6. Collect static files:
+   ```bash
+   python manage.py collectstatic
+   ```
+
+7. Configure static files in PythonAnywhere Web tab:
+
+URL: /static/
+
+Directory: /home/<your_username>/<your_project_name>/staticfiles
+
+8. Reload your web app in the PythonAnywhere Web tab.
+
+Visit your live app at:
+https://<your_pythonanywhere_subdomain>.pythonanywhere.com
+
+
 
 👉 Now your Habit Application is live and accessible from anywhere!
 
