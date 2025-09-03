@@ -167,3 +167,6 @@ else:
             "BACKEND": 'django.core.cache.backends.dummy.DummyCache',
         }
     }
+
+# Custom view for CSRF failures
+CSRF_FAILURE_VIEW = 'habit_application.views.custom_csrf_failure'
